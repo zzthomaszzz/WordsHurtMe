@@ -1,3 +1,5 @@
+from turtledemo.nim import SCREENWIDTH, SCREENHEIGHT
+
 import pygame
 from config import *
 
@@ -26,6 +28,7 @@ class SceneMain(SceneBase):
     def __init__(self):
         super().__init__()
         self.button_house = pygame.rect.Rect(BUTTON_HOUSE_X, BUTTON_HOUSE_Y, BUTTON_HOUSE_WIDTH, BUTTON_HOUSE_HEIGHT)
+        self.image_house = pygame.transform.smoothscale(pygame.image.load(HOUSE_IMAGE_PATH).convert_alpha(), (BUTTON_HOUSE_WIDTH, BUTTON_HOUSE_HEIGHT))
 
         self.button_murkey_water = pygame.rect.Rect(BUTTON_MURKEY_WATER_X, BUTTON_MURKEY_WATER_Y, BUTTON_MURKEY_WATER_WIDTH, BUTTON_MURKEY_WATER_HEIGHT)
         self.image_murkey_water = pygame.transform.smoothscale(pygame.image.load(MURKEY_WATER_IMAGE_PATH).convert_alpha(), (BUTTON_MURKEY_WATER_WIDTH, BUTTON_MURKEY_WATER_HEIGHT))
@@ -34,16 +37,21 @@ class SceneMain(SceneBase):
         self.image_boat_house = pygame.transform.smoothscale(pygame.image.load(BOAT_HOUSE_IMAGE_PATH).convert_alpha(), (BUTTON_BOAT_HOUSE_WIDTH, BUTTON_BOAT_HOUSE_HEIGHT))
 
         self.button_chapel = pygame.rect.Rect(BUTTON_CHAPEL_X, BUTTON_CHAPEL_Y, BUTTON_CHAPEL_WIDTH, BUTTON_CHAPEL_HEIGHT)
+        self.image_chapel = pygame.transform.smoothscale(pygame.image.load(CHAPEL_IMAGE_PATH).convert_alpha(), (BUTTON_CHAPEL_WIDTH, BUTTON_CHAPEL_HEIGHT))
 
         self.button_lighthouse = pygame.rect.Rect(BUTTON_LIGHTHOUSE_X, BUTTON_LIGHTHOUSE_Y, BUTTON_LIGHTHOUSE_WIDTH, BUTTON_LIGHTHOUSE_HEIGHT)
         self.image_lighthouse = pygame.transform.smoothscale(pygame.image.load(LIGHTHOUSE_IMAGE_PATH).convert_alpha(), (BUTTON_LIGHTHOUSE_WIDTH, BUTTON_LIGHTHOUSE_HEIGHT))
 
-
+        self.image_background = pygame.transform.smoothscale(pygame.image.load(BACKGROUND_IMAGE_PATH).convert_alpha(), (WINDOW_WIDTH, WINDOW_HEIGHT))
     def render(self, screen):
         screen.fill((0, 0, 0))
+        screen.blit(self.image_background, (0,0))
         screen.blit(self.image_boat_house, self.button_boat_house.topleft)
         screen.blit(self.image_murkey_water, self.button_murkey_water.topleft)
         screen.blit(self.image_lighthouse, self.button_lighthouse.topleft)
+        screen.blit(self.image_house, self.button_house.topleft)
+        screen.blit(self.image_chapel, self.button_chapel.topleft)
+
         pygame.draw.rect(screen, (0, 255, 0), self.button_house, 1)
         pygame.draw.rect(screen, (0, 255, 0), self.button_murkey_water, 1)
         pygame.draw.rect(screen, (0, 255, 0), self.button_boat_house, 1)
