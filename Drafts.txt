@@ -12,7 +12,7 @@ locations:
     -> boathouse:
         -Pariah.
         -Eyeless Villager.
-    -> Chape;:
+    -> Chapel
         -Apostle.
         -Fanatic.
         -Teacher.
