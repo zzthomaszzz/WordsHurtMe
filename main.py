@@ -6,7 +6,7 @@ from config import *
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-active_scene = SceneMenu()
+active_scene = SceneMain()
 clock = pygame.time.Clock()
 
 while active_scene is not None:
