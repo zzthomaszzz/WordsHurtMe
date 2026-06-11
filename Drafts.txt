@@ -1,0 +1,32 @@
+Words hurt me demo
+platform: pc.
+Map: Lighthouse Village
+locations: 
+    houses:
+        -Eyeless Villager.
+        -Pariah.
+        -Apostle.
+    ->murkey water:
+        -Murklurker.
+        -Dominant Murklurker.
+    -> boathouse:
+        -Pariah.
+        -Eyeless Villager.
+    -> Chape;:
+        -Apostle.
+        -Fanatic.
+        -Teacher.
+    -> Lighthouse: Lighthouse - (final boss).
+
+Skills:
+-contemplation (pause screen to study)
+-delirium (remove all dmg taken)
+-concentration (add more time)
+-denial (switch phases)
+-acceptance (lower dmg taken)
+
+mechanics:
+-point&click move
+-enemies with loot table for drops
+-on death restart round
+-typing in combat
