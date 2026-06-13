@@ -1,14 +1,14 @@
-from turtledemo.nim import SCREENWIDTH, SCREENHEIGHT
-
 import pygame
+
 from config import *
+import sys
 
 
 
 class SceneBase:
     def __init__(self):
         self.next_scene = self
-        self.background = None
+        self.image_background = None
 
     def process_input(self, events):
         for event in events:
@@ -19,10 +19,58 @@ class SceneBase:
     def render(self, screen): pass
 
 class SceneArea(SceneBase):
-    pass
+    def __init__(self, image_background = None, class_next_scene = None):
+        super().__init__()
+        self.image_background = image_background
+        self.class_next_scene = class_next_scene
+
+        self.button_width = 150
+        self.button_height = 100
+
+        self.button_go_back = pygame.rect.Rect(0, WINDOW_HEIGHT - self.button_height, self.button_width, self.button_height)
+        self.button_go_to_combat = pygame.rect.Rect(WINDOW_WIDTH - self.button_width, WINDOW_HEIGHT - self.button_height, self.button_width, self.button_height)
+
+    def process_input(self, events):
+        super().process_input(events)
+
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = event.pos
+                if self.button_go_back.collidepoint(x, y):
+                    self.next_scene = SceneMain()
+
+    def render(self, screen):
+        screen.fill((0, 0, 0))
+
+        pygame.draw.rect(screen, (0, 255, 0), self.button_go_back)
+        pygame.draw.rect(screen, (0, 255, 0), self.button_go_to_combat)
+
 
 class SceneCombat(SceneBase):
-    pass
+    def __init__(self):
+        super().__init__()
+        self.font = pygame.font.SysFont(None, 30)
+        self.user_text = ""
+        self.input_box = pygame.rect.Rect(BUTTON_INPUT_BOX_X, BUTTON_INPUT_BOX_Y, BUTTON_INPUT_BOX_WIDTH, BUTTON_INPUT_BOX_HEIGHT)
+
+    def process_input(self, events):
+        super().process_input(events)
+
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_BACKSPACE:
+                    self.user_text = self.user_text[:-1]
+                else:
+                    self.user_text += event.unicode
+
+    def render(self, screen):
+        screen.fill((0, 0, 255))
+        pygame.draw.rect(screen, (0, 255, 0 ), self.input_box, 2)
+
+        text_surface = self.font.render(self.user_text, True, (255, 255, 255))
+        screen.blit(text_surface, (self.input_box.x + 5, self.input_box.y + 10))
+
+
 
 class SceneMain(SceneBase):
     def __init__(self):
@@ -43,9 +91,29 @@ class SceneMain(SceneBase):
         self.image_lighthouse = pygame.transform.smoothscale(pygame.image.load(LIGHTHOUSE_IMAGE_PATH).convert_alpha(), (BUTTON_LIGHTHOUSE_WIDTH, BUTTON_LIGHTHOUSE_HEIGHT))
 
         self.image_background = pygame.transform.smoothscale(pygame.image.load(BACKGROUND_IMAGE_PATH).convert_alpha(), (WINDOW_WIDTH, WINDOW_HEIGHT))
+
+    def process_input(self, events):
+        super().process_input(events)
+
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = event.pos
+                if self.button_house.collidepoint(x, y):
+                    self.next_scene = SceneArea()
+                if self.button_murkey_water.collidepoint(x, y):
+                    self.next_scene = SceneArea()
+                if self.button_boat_house.collidepoint(x, y):
+                    self.next_scene = SceneArea()
+                if self.button_chapel.collidepoint(x, y):
+                    self.next_scene = SceneArea()
+                if self.button_lighthouse.collidepoint(x, y):
+                    self.next_scene = SceneArea()
+
     def render(self, screen):
         screen.fill((0, 0, 0))
+
         screen.blit(self.image_background, (0,0))
+
         screen.blit(self.image_boat_house, self.button_boat_house.topleft)
         screen.blit(self.image_murkey_water, self.button_murkey_water.topleft)
         screen.blit(self.image_lighthouse, self.button_lighthouse.topleft)
