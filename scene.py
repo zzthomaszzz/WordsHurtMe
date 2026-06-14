@@ -1,7 +1,6 @@
-import pygame
 
 from config import *
-import sys
+from area import *
 
 
 
@@ -19,9 +18,9 @@ class SceneBase:
     def render(self, screen): pass
 
 class SceneArea(SceneBase):
-    def __init__(self, image_background = None, class_next_scene = None):
+    def __init__(self, image_background = BACKGROUND_IMAGE_PATH, class_next_scene = None):
         super().__init__()
-        self.image_background = image_background
+        self.image_background = pygame.transform.smoothscale(pygame.image.load(image_background).convert_alpha(), (WINDOW_WIDTH, WINDOW_HEIGHT))
         self.class_next_scene = class_next_scene
 
         self.button_width = 150
@@ -38,67 +37,158 @@ class SceneArea(SceneBase):
                 x, y = event.pos
                 if self.button_go_back.collidepoint(x, y):
                     self.next_scene = SceneMain()
+                if self.button_go_to_combat.collidepoint(x, y):
+                    if self.class_next_scene:
+                        self.next_scene = SceneCombat(self.class_next_scene())
 
     def render(self, screen):
+        if self.image_background:
+            screen.blit(self.image_background, (0, 0))
         screen.fill((0, 0, 0))
 
         pygame.draw.rect(screen, (0, 255, 0), self.button_go_back)
         pygame.draw.rect(screen, (0, 255, 0), self.button_go_to_combat)
 
+class SceneVictory(SceneBase):
+    def __init__(self, loot_collected):
+        super().__init__()
 
-class SceneCombat(SceneBase):
+        self.font = pygame.font.SysFont(None, 30)
+        self.loot_collected = loot_collected
+
+        self.timer = 3.0
+
+    def update(self, dt):
+        self.timer -= dt
+        if self.timer < 0:
+            self.next_scene = SceneMain()
+
+    def render(self, screen):
+        screen.fill((0, 0, 0))
+        text_surface = self.font.render("YOU WIN", True, (255, 255, 255))
+        screen.blit(text_surface, ((WINDOW_WIDTH/2) - (text_surface.get_width()/2), (WINDOW_HEIGHT/2) - (text_surface.get_height()/2)))
+
+class SceneLost(SceneBase):
     def __init__(self):
         super().__init__()
 
+        self.font = pygame.font.SysFont(None, 30)
+        self.timer = 3
+
+    def update(self, dt):
+        self.timer -= dt
+        if self.timer < 0:
+            self.next_scene = SceneMenu()
+
+    def render(self, screen):
+        screen.fill((0, 0, 0))
+        text_surface = self.font.render("YOU LOST", True, (255, 255, 255))
+        screen.blit(text_surface, ((WINDOW_WIDTH/2) - (text_surface.get_width()/2), (WINDOW_HEIGHT/2) - (text_surface.get_height()/2)))
+
+class SceneCombat(SceneBase):
+    def __init__(self, area):
+        super().__init__()
+
+        self.loot_collected = []
+
+        self.counter = 0.0
+        self.time = BUFFER_TIME
+        self.is_done_buffer = False
+        self.time_per_prompt = TIME_PER_PROMPT
+
         self.player_hp = 100
         self.player_stamina = 100
+        self.player_is_submitted = False
 
         self.font = pygame.font.SysFont(None, 30)
         self.user_text = ""
         self.input_box = pygame.rect.Rect(BUTTON_INPUT_BOX_X, BUTTON_INPUT_BOX_Y, BUTTON_INPUT_BOX_WIDTH, BUTTON_INPUT_BOX_HEIGHT)
 
-        self.enemy_text = "Hello There"
-        self.enemy_text_box = pygame.rect.Rect(BUTTON_ENEMY_TEXT_BOX_X, BUTTON_ENEMY_TEXT_BOX_Y, BUTTON_ENEMY_TEXT_BOX_WIDTH, BUTTON_ENEMY_TEXT_BOX_HEIGHT)
+        self.area = area
 
-    def generate_new_text(self, enemy):
-        pass
+        self.enemy_text_box = pygame.rect.Rect(BUTTON_ENEMY_TEXT_BOX_X, BUTTON_ENEMY_TEXT_BOX_Y, BUTTON_ENEMY_TEXT_BOX_WIDTH, BUTTON_ENEMY_TEXT_BOX_HEIGHT)
+        self.enemy = self.area.current_enemy
 
     def isStringEqual(self):
-        return self.user_text == self.enemy_text
+        return self.user_text == self.enemy.current_prompt
+
+    def update(self, dt):
+        if not self.is_done_buffer:
+            self.time -= dt
+            if self.time <= 0:
+                self.is_done_buffer = True
+                self.time = self.time_per_prompt
+        else:
+            if self.player_is_submitted:
+                if self.isStringEqual():
+                    self.enemy.health -= 30
+                    self.enemy.set_new_prompt()
+                    self.time = self.time_per_prompt
+                    if self.enemy.health <= 0:
+                        self.loot_collected.append(self.enemy.get_loot())
+                        del self.area.enemies_list[0]
+                        if len(self.area.enemies_list) > 0:
+                            self.enemy = self.area.enemies_list[0]
+                            print(self.enemy.health)
+                            self.enemy.set_new_prompt()
+                            self.time = self.time_per_prompt
+                        else:
+                            self.next_scene = SceneVictory(self.loot_collected)
+                else:
+                    self.player_hp -= 30
+                    if self.player_hp < 0:
+                        self.next_scene = SceneLost()
+                    else:
+                        self.enemy.set_new_prompt()
+                        self.time = self.time_per_prompt
+                self.user_text = ""
+                self.player_is_submitted = False
+            self.time -= dt
+            if self.time <= 0:
+                self.time = self.time_per_prompt
+                self.enemy.set_new_prompt()
+                self.player_hp -= 30
+                self.user_text = ""
+                if self.player_hp < 0:
+                    self.next_scene = SceneLost()
 
     def process_input(self, events):
         super().process_input(events)
 
         for event in events:
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN and self.is_done_buffer:
                 if event.key == pygame.K_BACKSPACE:
                     self.user_text = self.user_text[:-1]
                 elif event.key == pygame.K_RETURN:
-                    if self.isStringEqual():
-                        self.enemy_text = "Good job"
-                    else:
-                        self.player_hp -= 30
-                    self.user_text = ""
+                    self.player_is_submitted = True
                 else:
                     self.user_text += event.unicode
 
     def render(self, screen):
-        screen.fill((0, 0, 255))
+        if not self.is_done_buffer:
+            screen.fill((0, 125, 125))
+        else:
+            screen.fill((0, 0, 0))
         pygame.draw.rect(screen, (0, 255, 0 ), self.input_box, 2)
         pygame.draw.rect(screen, (0, 255, 0), self.enemy_text_box, 2)
 
         text_surface = self.font.render(self.user_text, True, (255, 255, 255))
         screen.blit(text_surface, (self.input_box.x + 5, self.input_box.y + 10))
 
-        enemy_text_surface = self.font.render(self.enemy_text, True, (255, 255, 255))
+        enemy_text_surface = self.font.render(self.enemy.current_prompt, True, (255, 255, 255))
         screen.blit(enemy_text_surface, (self.enemy_text_box.x + 5, self.enemy_text_box.y + 10))
+
+        enemy_health_text = self.font.render(f"{self.enemy.name}'s health: {self.enemy.health}", True, (255, 255, 255))
+        screen.blit(enemy_health_text, (1000, 50))
+
+        enemy_left_text = self.font.render(f"Enemies left: {len(self.area.enemies_list)}", True, (255, 255, 255))
+        screen.blit(enemy_left_text, (1000, 100))
 
         player_hp_text = self.font.render("Health: " + str(self.player_hp), True, (255, 255, 255))
         screen.blit(player_hp_text, (50, WINDOW_HEIGHT/2))
 
-
-
-
+        count_down_text_surface = self.font.render(f"Time left: {int(self.time)}", True, (255, 255, 255))
+        screen.blit(count_down_text_surface, (50, 50))
 
 class SceneMain(SceneBase):
     def __init__(self):
@@ -127,15 +217,15 @@ class SceneMain(SceneBase):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
                 if self.button_house.collidepoint(x, y):
-                    self.next_scene = SceneArea()
+                    self.next_scene = SceneArea(class_next_scene=AreaHouse)
                 if self.button_murkey_water.collidepoint(x, y):
-                    self.next_scene = SceneArea()
+                    self.next_scene = SceneArea(class_next_scene=AreaMurkeyWater)
                 if self.button_boat_house.collidepoint(x, y):
-                    self.next_scene = SceneArea()
+                    self.next_scene = SceneArea(class_next_scene=AreaBoatHouse)
                 if self.button_chapel.collidepoint(x, y):
-                    self.next_scene = SceneArea()
+                    self.next_scene = SceneArea(class_next_scene=AreaChapel)
                 if self.button_lighthouse.collidepoint(x, y):
-                    self.next_scene = SceneArea()
+                    self.next_scene = SceneArea(class_next_scene=AreaLighthouse)
 
     def render(self, screen):
         screen.fill((0, 0, 0))
