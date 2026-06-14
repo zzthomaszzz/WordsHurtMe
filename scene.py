@@ -49,9 +49,22 @@ class SceneArea(SceneBase):
 class SceneCombat(SceneBase):
     def __init__(self):
         super().__init__()
+
+        self.player_hp = 100
+        self.player_stamina = 100
+
         self.font = pygame.font.SysFont(None, 30)
         self.user_text = ""
         self.input_box = pygame.rect.Rect(BUTTON_INPUT_BOX_X, BUTTON_INPUT_BOX_Y, BUTTON_INPUT_BOX_WIDTH, BUTTON_INPUT_BOX_HEIGHT)
+
+        self.enemy_text = "Hello There"
+        self.enemy_text_box = pygame.rect.Rect(BUTTON_ENEMY_TEXT_BOX_X, BUTTON_ENEMY_TEXT_BOX_Y, BUTTON_ENEMY_TEXT_BOX_WIDTH, BUTTON_ENEMY_TEXT_BOX_HEIGHT)
+
+    def generate_new_text(self, enemy):
+        pass
+
+    def isStringEqual(self):
+        return self.user_text == self.enemy_text
 
     def process_input(self, events):
         super().process_input(events)
@@ -60,15 +73,30 @@ class SceneCombat(SceneBase):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_BACKSPACE:
                     self.user_text = self.user_text[:-1]
+                elif event.key == pygame.K_RETURN:
+                    if self.isStringEqual():
+                        self.enemy_text = "Good job"
+                    else:
+                        self.player_hp -= 30
+                    self.user_text = ""
                 else:
                     self.user_text += event.unicode
 
     def render(self, screen):
         screen.fill((0, 0, 255))
         pygame.draw.rect(screen, (0, 255, 0 ), self.input_box, 2)
+        pygame.draw.rect(screen, (0, 255, 0), self.enemy_text_box, 2)
 
         text_surface = self.font.render(self.user_text, True, (255, 255, 255))
         screen.blit(text_surface, (self.input_box.x + 5, self.input_box.y + 10))
+
+        enemy_text_surface = self.font.render(self.enemy_text, True, (255, 255, 255))
+        screen.blit(enemy_text_surface, (self.enemy_text_box.x + 5, self.enemy_text_box.y + 10))
+
+        player_hp_text = self.font.render("Health: " + str(self.player_hp), True, (255, 255, 255))
+        screen.blit(player_hp_text, (50, WINDOW_HEIGHT/2))
+
+
 
 
 
