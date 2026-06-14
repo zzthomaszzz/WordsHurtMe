@@ -1,4 +1,5 @@
 
+import math
 from config import *
 from area import *
 
@@ -95,13 +96,17 @@ class SceneCombat(SceneBase):
         self.counter = 0.0
         self.time = BUFFER_TIME
         self.is_done_buffer = False
-        self.time_per_prompt = TIME_PER_PROMPT
+        self.time_per_prompt = area.time_per_prompt
 
         self.player_hp = 100
         self.player_stamina = 100
         self.player_is_submitted = False
 
+        self.is_contemplating = False
+        self.contemplation_timer = 0.0
+
         self.font = pygame.font.SysFont(None, 25)
+        self.font_large = pygame.font.SysFont(None, 150)
         self.user_text = ""
         self.input_box = pygame.rect.Rect(BUTTON_INPUT_BOX_X, BUTTON_INPUT_BOX_Y, BUTTON_INPUT_BOX_WIDTH, BUTTON_INPUT_BOX_HEIGHT)
 
@@ -158,6 +163,11 @@ class SceneCombat(SceneBase):
             self.next_scene = SceneVictory(self.loot_collected)
 
     def update_timer(self, dt):
+        if self.is_contemplating:
+            self.contemplation_timer -= dt
+            if self.contemplation_timer <= 0:
+                self.is_contemplating = False
+            return
         self.time -= dt
         if self.time <= 0:
             self.time = self.time_per_prompt
@@ -196,12 +206,58 @@ class SceneCombat(SceneBase):
         label_surface = self.font.render("HP", True, (255, 255, 255))
         screen.blit(label_surface, (PLAYER_HP_BAR_X + PLAYER_HP_BAR_W // 2 - label_surface.get_width() // 2, PLAYER_HP_BAR_Y - 20))
 
+    def draw_player_stamina_bar(self, screen):
+        ratio = max(0.0, self.player_stamina / 100)
+
+        bg_rect = pygame.Rect(PLAYER_STAMINA_BAR_X, PLAYER_STAMINA_BAR_Y, PLAYER_STAMINA_BAR_W, PLAYER_STAMINA_BAR_H)
+        pygame.draw.rect(screen, (50, 50, 50), bg_rect)
+
+        fill_h = int(PLAYER_STAMINA_BAR_H * ratio)
+        fill_rect = pygame.Rect(PLAYER_STAMINA_BAR_X, PLAYER_STAMINA_BAR_Y + PLAYER_STAMINA_BAR_H - fill_h, PLAYER_STAMINA_BAR_W, fill_h)
+        pygame.draw.rect(screen, (255, 215, 0), fill_rect)
+
+        label_surface = self.font.render("SP", True, (255, 255, 255))
+        screen.blit(label_surface, (PLAYER_STAMINA_BAR_X + PLAYER_STAMINA_BAR_W // 2 - label_surface.get_width() // 2, PLAYER_STAMINA_BAR_Y - 20))
+
+    def draw_buffer_countdown(self, screen):
+        number = math.ceil(self.time)
+        countdown_surface = self.font_large.render(str(number), True, (255, 255, 255))
+        x = WINDOW_WIDTH // 2 - countdown_surface.get_width() // 2
+        y = WINDOW_HEIGHT // 2 - countdown_surface.get_height() // 2
+        screen.blit(countdown_surface, (x, y))
+
+    def draw_timer_bar(self, screen):
+        ratio = max(0.0, self.time / self.time_per_prompt)
+        r = min(255, int((1 - ratio) * 2 * 255))
+        g = min(255, int(ratio * 2 * 255))
+
+        bg_rect = pygame.Rect(TIMER_BAR_X, TIMER_BAR_Y, TIMER_BAR_W, TIMER_BAR_H)
+        pygame.draw.rect(screen, (50, 50, 50), bg_rect)
+
+        fill_rect = pygame.Rect(TIMER_BAR_X, TIMER_BAR_Y, int(TIMER_BAR_W * ratio), TIMER_BAR_H)
+        color = (0, 150, 255) if self.is_contemplating else (r, g, 0)
+        pygame.draw.rect(screen, color, fill_rect)
+
+    def handle_skill_input(self, key):
+        match key:
+            case pygame.K_1:
+                self.activate_contemplation()
+
+    def activate_contemplation(self):
+        if not self.is_contemplating and self.player_stamina >= SKILL_CONTEMPLATION_COST:
+            self.is_contemplating = True
+            self.contemplation_timer = SKILL_CONTEMPLATION_DURATION
+            self.player_stamina -= SKILL_CONTEMPLATION_COST
+
     def process_input(self, events):
         super().process_input(events)
 
         for event in events:
             if event.type == pygame.KEYDOWN and self.is_done_buffer:
-                if event.key == pygame.K_BACKSPACE:
+                mods = pygame.key.get_mods()
+                if mods & pygame.KMOD_CTRL:
+                    self.handle_skill_input(event.key)
+                elif event.key == pygame.K_BACKSPACE:
                     self.user_text = self.user_text[:-1]
                 elif event.key == pygame.K_RETURN:
                     self.player_is_submitted = True
@@ -229,9 +285,12 @@ class SceneCombat(SceneBase):
         screen.blit(enemy_left_text, (1000, 100))
 
         self.draw_player_health_bar(screen)
+        self.draw_player_stamina_bar(screen)
 
-        count_down_text_surface = self.font.render(f"Time left: {int(self.time)}", True, (255, 255, 255))
-        screen.blit(count_down_text_surface, (50, 50))
+        if self.is_done_buffer:
+            self.draw_timer_bar(screen)
+        else:
+            self.draw_buffer_countdown(screen)
 
 class SceneMain(SceneBase):
     def __init__(self):
