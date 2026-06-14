@@ -4,6 +4,7 @@ class EnemyBase:
     def __init__(self, name, health, prompt, loots, weights):
         self.name = name
         self.health = health
+        self.max_health = health
         self.prompt = prompt
 
         self.loots = loots
@@ -27,6 +28,7 @@ class EnemyVillager(EnemyBase):
             "You are here for a reason. Surrender to the Light!",
             "Your eyes led you to your destruction. darkness awaits",
             "The Lighthouse guides us! He provides us with sustenance!",
+            "Run away, and one of us dies instead!",
         ], ["Nothing", "Murklurker Club"], [81, 19])
 
 class EnemyPariah(EnemyBase):
@@ -102,7 +104,7 @@ class EnemyTeacher(EnemyBase):
 class EnemyLighthouse(EnemyBase):
     def __init__(self):
         self.count = 0
-        super().__init__("Teacher", 90, [
+        super().__init__("Lighthouse", 120, [
             "Hello, Human. Have you come for the light? I cannot blame you for your desire.",
             "I have all the time in the world. Unlike you, death does not hinder me. Sit down and listen.",
             "The village you escaped. I am their nourishment. Their protection. Their guide. Their father. Their God.",

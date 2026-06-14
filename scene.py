@@ -44,7 +44,8 @@ class SceneArea(SceneBase):
     def render(self, screen):
         if self.image_background:
             screen.blit(self.image_background, (0, 0))
-        screen.fill((0, 0, 0))
+        else:
+            screen.fill((0, 0, 0))
 
         pygame.draw.rect(screen, (0, 255, 0), self.button_go_back)
         pygame.draw.rect(screen, (0, 255, 0), self.button_go_to_combat)
@@ -100,7 +101,7 @@ class SceneCombat(SceneBase):
         self.player_stamina = 100
         self.player_is_submitted = False
 
-        self.font = pygame.font.SysFont(None, 30)
+        self.font = pygame.font.SysFont(None, 25)
         self.user_text = ""
         self.input_box = pygame.rect.Rect(BUTTON_INPUT_BOX_X, BUTTON_INPUT_BOX_Y, BUTTON_INPUT_BOX_WIDTH, BUTTON_INPUT_BOX_HEIGHT)
 
@@ -114,43 +115,86 @@ class SceneCombat(SceneBase):
 
     def update(self, dt):
         if not self.is_done_buffer:
-            self.time -= dt
-            if self.time <= 0:
-                self.is_done_buffer = True
-                self.time = self.time_per_prompt
+            self.update_buffer(dt)
         else:
             if self.player_is_submitted:
-                if self.isStringEqual():
-                    self.enemy.health -= 30
-                    self.enemy.set_new_prompt()
-                    self.time = self.time_per_prompt
-                    if self.enemy.health <= 0:
-                        self.loot_collected.append(self.enemy.get_loot())
-                        del self.area.enemies_list[0]
-                        if len(self.area.enemies_list) > 0:
-                            self.enemy = self.area.enemies_list[0]
-                            print(self.enemy.health)
-                            self.enemy.set_new_prompt()
-                            self.time = self.time_per_prompt
-                        else:
-                            self.next_scene = SceneVictory(self.loot_collected)
-                else:
-                    self.player_hp -= 30
-                    if self.player_hp < 0:
-                        self.next_scene = SceneLost()
-                    else:
-                        self.enemy.set_new_prompt()
-                        self.time = self.time_per_prompt
-                self.user_text = ""
-                self.player_is_submitted = False
-            self.time -= dt
-            if self.time <= 0:
+                self.handle_submission()
+            self.update_timer(dt)
+
+    def update_buffer(self, dt):
+        self.time -= dt
+        if self.time <= 0:
+            self.is_done_buffer = True
+            self.time = self.time_per_prompt
+
+    def handle_submission(self):
+        if self.isStringEqual():
+            self.handle_correct_answer()
+        else:
+            self.player_hp -= 30
+            if self.player_hp <= 0:
+                self.next_scene = SceneLost()
+            else:
                 self.time = self.time_per_prompt
-                self.enemy.set_new_prompt()
-                self.player_hp -= 30
-                self.user_text = ""
-                if self.player_hp < 0:
-                    self.next_scene = SceneLost()
+        self.user_text = ""
+        self.player_is_submitted = False
+
+    def handle_correct_answer(self):
+        self.enemy.health -= 30
+        self.time = self.time_per_prompt
+        if self.enemy.health <= 0:
+            self.handle_enemy_death()
+        else:
+            self.enemy.set_new_prompt()
+
+    def handle_enemy_death(self):
+        self.loot_collected.append(self.enemy.get_loot())
+        del self.area.enemies_list[0]
+        if len(self.area.enemies_list) > 0:
+            self.enemy = self.area.enemies_list[0]
+            self.enemy.set_new_prompt()
+            self.time = self.time_per_prompt
+        else:
+            self.next_scene = SceneVictory(self.loot_collected)
+
+    def update_timer(self, dt):
+        self.time -= dt
+        if self.time <= 0:
+            self.time = self.time_per_prompt
+            self.player_hp -= 30
+            self.user_text = ""
+            if self.player_hp <= 0:
+                self.next_scene = SceneLost()
+
+    def draw_enemy_health_bar(self, screen):
+        ratio = max(0.0, self.enemy.health / self.enemy.max_health)
+        r = min(255, int((1 - ratio) * 2 * 255))
+        g = min(255, int(ratio * 2 * 255))
+
+        bg_rect = pygame.Rect(ENEMY_HP_BAR_X, ENEMY_HP_BAR_Y, ENEMY_HP_BAR_W, ENEMY_HP_BAR_H)
+        pygame.draw.rect(screen, (50, 50, 50), bg_rect)
+
+        fill_h = int(ENEMY_HP_BAR_H * ratio)
+        fill_rect = pygame.Rect(ENEMY_HP_BAR_X, ENEMY_HP_BAR_Y + ENEMY_HP_BAR_H - fill_h, ENEMY_HP_BAR_W, fill_h)
+        pygame.draw.rect(screen, (r, g, 0), fill_rect)
+
+        name_surface = self.font.render(self.enemy.name, True, (255, 255, 255))
+        screen.blit(name_surface, (ENEMY_HP_BAR_X + ENEMY_HP_BAR_W // 2 - name_surface.get_width() // 2, ENEMY_HP_BAR_Y - 20))
+
+    def draw_player_health_bar(self, screen):
+        ratio = max(0.0, self.player_hp / 100)
+        r = min(255, int((1 - ratio) * 2 * 255))
+        g = min(255, int(ratio * 2 * 255))
+
+        bg_rect = pygame.Rect(PLAYER_HP_BAR_X, PLAYER_HP_BAR_Y, PLAYER_HP_BAR_W, PLAYER_HP_BAR_H)
+        pygame.draw.rect(screen, (50, 50, 50), bg_rect)
+
+        fill_h = int(PLAYER_HP_BAR_H * ratio)
+        fill_rect = pygame.Rect(PLAYER_HP_BAR_X, PLAYER_HP_BAR_Y + PLAYER_HP_BAR_H - fill_h, PLAYER_HP_BAR_W, fill_h)
+        pygame.draw.rect(screen, (r, g, 0), fill_rect)
+
+        label_surface = self.font.render("HP", True, (255, 255, 255))
+        screen.blit(label_surface, (PLAYER_HP_BAR_X + PLAYER_HP_BAR_W // 2 - label_surface.get_width() // 2, PLAYER_HP_BAR_Y - 20))
 
     def process_input(self, events):
         super().process_input(events)
@@ -169,6 +213,7 @@ class SceneCombat(SceneBase):
             screen.fill((0, 125, 125))
         else:
             screen.fill((0, 0, 0))
+
         pygame.draw.rect(screen, (0, 255, 0 ), self.input_box, 2)
         pygame.draw.rect(screen, (0, 255, 0), self.enemy_text_box, 2)
 
@@ -178,14 +223,12 @@ class SceneCombat(SceneBase):
         enemy_text_surface = self.font.render(self.enemy.current_prompt, True, (255, 255, 255))
         screen.blit(enemy_text_surface, (self.enemy_text_box.x + 5, self.enemy_text_box.y + 10))
 
-        enemy_health_text = self.font.render(f"{self.enemy.name}'s health: {self.enemy.health}", True, (255, 255, 255))
-        screen.blit(enemy_health_text, (1000, 50))
+        self.draw_enemy_health_bar(screen)
 
         enemy_left_text = self.font.render(f"Enemies left: {len(self.area.enemies_list)}", True, (255, 255, 255))
         screen.blit(enemy_left_text, (1000, 100))
 
-        player_hp_text = self.font.render("Health: " + str(self.player_hp), True, (255, 255, 255))
-        screen.blit(player_hp_text, (50, WINDOW_HEIGHT/2))
+        self.draw_player_health_bar(screen)
 
         count_down_text_surface = self.font.render(f"Time left: {int(self.time)}", True, (255, 255, 255))
         screen.blit(count_down_text_surface, (50, 50))
