@@ -238,6 +238,18 @@ class SceneCombat(SceneBase):
         color = (0, 150, 255) if self.is_contemplating else (r, g, 0)
         pygame.draw.rect(screen, color, fill_rect)
 
+    def draw_skill_slots(self, screen):
+        slot_width = TIMER_BAR_W // SKILL_SLOT_COUNT
+        for i in range(SKILL_SLOT_COUNT):
+            square_x = TIMER_BAR_X + i * slot_width + (slot_width - SKILL_SLOT_SIZE) // 2
+            rect = pygame.Rect(square_x, SKILL_SLOT_Y, SKILL_SLOT_SIZE, SKILL_SLOT_SIZE)
+            pygame.draw.rect(screen, (60, 60, 60), rect)
+            pygame.draw.rect(screen, (140, 140, 140), rect, 2)
+
+            label = self.font.render(str(i + 1), True, (180, 180, 180))
+            screen.blit(label, (square_x + SKILL_SLOT_SIZE // 2 - label.get_width() // 2,
+                                SKILL_SLOT_Y + SKILL_SLOT_SIZE // 2 - label.get_height() // 2))
+
     def handle_skill_input(self, key):
         match key:
             case pygame.K_1:
@@ -286,6 +298,8 @@ class SceneCombat(SceneBase):
 
         self.draw_player_health_bar(screen)
         self.draw_player_stamina_bar(screen)
+
+        self.draw_skill_slots(screen)
 
         if self.is_done_buffer:
             self.draw_timer_bar(screen)
