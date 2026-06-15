@@ -120,7 +120,7 @@ class EnemyFanatic(EnemyBase):
             None,
             Item("Lantern Flail",        "stamina",       25, "weapon", "Several small lanterns are tethered to a stick by especially strong seaweed. Contemplating how strange and impractical the weapon seems is a surefire way to be killed by it. It seems to amuse the Murklurkers."),
             Item("Cloak of the Devotee", "health",        30, "body",   "Contrary to the name, it’s actually a poncho. A gaudily colored cloth poncho that somehow makes the cultists look even creepier. Only the most devoted are granted the privilege to wear it."),
-            Item("Kneeling Pads",        "stamina_regen", 12, "legs",   "To be unable to pray to the Lighthouse is one of the most unforgivable sins in the village. Even the most psychotic of cultists understand the importance of proper leg-joint safety."),
+            Item("Kneeling Pads",        "stamina_regen", 12, "legs",   "To be unable to pray to the Lighthouse is one of the most unforgivable sins in the village! Even the most psychotic of cultists understand the importance of proper leg-joint safety."),
         ], [14, 28, 28, 30])
 
 class EnemyTeacher(EnemyBase):
