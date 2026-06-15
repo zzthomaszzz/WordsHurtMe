@@ -97,6 +97,7 @@ class SceneCombat(SceneBase):
         self.time = BUFFER_TIME
         self.is_done_buffer = False
         self.time_per_prompt = area.time_per_prompt
+        self.damage_wrong_letter = area.damage_wrong_letter
 
         self.player_hp = 100
         self.player_stamina = 100
@@ -104,6 +105,9 @@ class SceneCombat(SceneBase):
 
         self.is_contemplating = False
         self.contemplation_timer = 0.0
+
+        self.is_damage_flash = False
+        self.damage_flash_timer = 0.0
 
         self.font = pygame.font.SysFont(None, 25)
         self.font_large = pygame.font.SysFont(None, 150)
@@ -132,15 +136,18 @@ class SceneCombat(SceneBase):
             self.is_done_buffer = True
             self.time = self.time_per_prompt
 
+    def take_damage(self, amount):
+        self.player_hp -= amount
+        self.is_damage_flash = True
+        self.damage_flash_timer = DAMAGE_FLASH_DURATION
+        if self.player_hp <= 0:
+            self.next_scene = SceneLost()
+        self.time = self.time_per_prompt
+
     def handle_submission(self):
         if self.isStringEqual():
             self.handle_correct_answer()
-        else:
-            self.player_hp -= 30
-            if self.player_hp <= 0:
-                self.next_scene = SceneLost()
-            else:
-                self.time = self.time_per_prompt
+        self.take_damage(self.damage_wrong_letter)
         self.user_text = ""
         self.player_is_submitted = False
 
@@ -163,6 +170,11 @@ class SceneCombat(SceneBase):
             self.next_scene = SceneVictory(self.loot_collected)
 
     def update_timer(self, dt):
+        if self.is_damage_flash:
+            self.damage_flash_timer -= dt
+            if self.damage_flash_timer <= 0:
+                self.is_damage_flash = False
+
         if self.is_contemplating:
             self.contemplation_timer -= dt
             if self.contemplation_timer <= 0:
@@ -171,10 +183,8 @@ class SceneCombat(SceneBase):
         self.time -= dt
         if self.time <= 0:
             self.time = self.time_per_prompt
-            self.player_hp -= 30
             self.user_text = ""
-            if self.player_hp <= 0:
-                self.next_scene = SceneLost()
+            self.take_damage(30)
 
     def draw_enemy_health_bar(self, screen):
         ratio = max(0.0, self.enemy.health / self.enemy.max_health)
@@ -273,8 +283,13 @@ class SceneCombat(SceneBase):
                     self.user_text = self.user_text[:-1]
                 elif event.key == pygame.K_RETURN:
                     self.player_is_submitted = True
-                else:
-                    self.user_text += event.unicode
+                elif event.unicode:
+                    expected_len = len(self.user_text)
+                    if expected_len < len(self.enemy.current_prompt) and event.unicode == self.enemy.current_prompt[expected_len]:
+                        self.user_text += event.unicode
+                    else:
+                        self.user_text = ""
+                        self.take_damage(self.damage_wrong_letter)
 
     def render(self, screen):
         if not self.is_done_buffer:
@@ -306,6 +321,11 @@ class SceneCombat(SceneBase):
         else:
             self.draw_buffer_countdown(screen)
 
+        if self.is_damage_flash:
+            flash_surface = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT), pygame.SRCALPHA)
+            flash_surface.fill((255, 0, 0, 60))
+            screen.blit(flash_surface, (0, 0))
+
 class SceneMain(SceneBase):
     def __init__(self):
         super().__init__()
@@ -324,7 +344,18 @@ class SceneMain(SceneBase):
         self.button_lighthouse = pygame.rect.Rect(BUTTON_LIGHTHOUSE_X, BUTTON_LIGHTHOUSE_Y, BUTTON_LIGHTHOUSE_WIDTH, BUTTON_LIGHTHOUSE_HEIGHT)
         self.image_lighthouse = pygame.transform.smoothscale(pygame.image.load(LIGHTHOUSE_IMAGE_PATH).convert_alpha(), (BUTTON_LIGHTHOUSE_WIDTH, BUTTON_LIGHTHOUSE_HEIGHT))
 
+        self.button_old_chapel = pygame.rect.Rect(BUTTON_OLD_CHAPEL_X, BUTTON_OLD_CHAPEL_Y, BUTTON_OLD_CHAPEL_WIDTH, BUTTON_OLD_CHAPEL_HEIGHT)
+        self.image_old_chapel = pygame.transform.smoothscale(pygame.image.load(OLD_CHAPEL_IMAGE_PATH).convert_alpha(), (BUTTON_OLD_CHAPEL_WIDTH, BUTTON_OLD_CHAPEL_HEIGHT))
+
         self.image_background = pygame.transform.smoothscale(pygame.image.load(BACKGROUND_IMAGE_PATH).convert_alpha(), (WINDOW_WIDTH, WINDOW_HEIGHT))
+
+        self.font = pygame.font.SysFont(None, 22)
+
+    def draw_area_label(self, screen, button, name):
+        label = self.font.render(name, True, (0, 255, 255))
+        x = button.x + button.width // 2 - label.get_width() // 2
+        y = button.y + button.height + 5
+        screen.blit(label, (x, y))
 
     def process_input(self, events):
         super().process_input(events)
@@ -342,6 +373,8 @@ class SceneMain(SceneBase):
                     self.next_scene = SceneArea(class_next_scene=AreaChapel)
                 if self.button_lighthouse.collidepoint(x, y):
                     self.next_scene = SceneArea(class_next_scene=AreaLighthouse)
+                if self.button_old_chapel.collidepoint(x, y):
+                    self.next_scene = SceneArea(class_next_scene=AreaOldChapel)
 
     def render(self, screen):
         screen.fill((0, 0, 0))
@@ -353,12 +386,21 @@ class SceneMain(SceneBase):
         screen.blit(self.image_lighthouse, self.button_lighthouse.topleft)
         screen.blit(self.image_house, self.button_house.topleft)
         screen.blit(self.image_chapel, self.button_chapel.topleft)
+        screen.blit(self.image_old_chapel, self.button_old_chapel.topleft)
 
         pygame.draw.rect(screen, (0, 255, 0), self.button_house, 1)
         pygame.draw.rect(screen, (0, 255, 0), self.button_murkey_water, 1)
         pygame.draw.rect(screen, (0, 255, 0), self.button_boat_house, 1)
         pygame.draw.rect(screen, (0, 255, 0), self.button_chapel, 1)
         pygame.draw.rect(screen, (0, 255, 0), self.button_lighthouse, 1)
+        pygame.draw.rect(screen, (0, 255, 0), self.button_old_chapel, 1)
+
+        self.draw_area_label(screen, self.button_house, "House")
+        self.draw_area_label(screen, self.button_murkey_water, "Murkey Water")
+        self.draw_area_label(screen, self.button_boat_house, "Boat House")
+        self.draw_area_label(screen, self.button_chapel, "Chapel")
+        self.draw_area_label(screen, self.button_lighthouse, "Lighthouse")
+        self.draw_area_label(screen, self.button_old_chapel, "Old Chapel")
 
 class SceneMenu(SceneBase):
     def __init__(self):
