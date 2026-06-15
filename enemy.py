@@ -22,7 +22,7 @@ class EnemyBase:
 
 class EnemyVillager(EnemyBase):
     def __init__(self):
-        super().__init__("Villager", 100, [
+        super().__init__("Villager", 30, [
             "I hear you, sacrifice. Stand still and embrace your fate",
             "The Light, the Light! Isn't it wonderful?",
             "You are here for a reason. Surrender to the Light!",
@@ -33,7 +33,7 @@ class EnemyVillager(EnemyBase):
 
 class EnemyPariah(EnemyBase):
     def __init__(self):
-        super().__init__("Pariah", 100, [
+        super().__init__("Pariah", 30, [
             "So the murklurkers didn’t get you? I will",
             "At least you’re not a murklurker",
             "We all have a purpose here. Even you... Even me",
@@ -43,7 +43,7 @@ class EnemyPariah(EnemyBase):
 
 class EnemyApostle(EnemyBase):
     def __init__(self):
-        super().__init__("Apostle", 100, [
+        super().__init__("Apostle", 30, [
             "O’ Mighty Lighthouse, grant me strength!",
             "To reject the sins of the eyes! An act of salvation!",
             "Your death shall be quick! We offer you mercy!",
@@ -53,7 +53,7 @@ class EnemyApostle(EnemyBase):
 
 class EnemyMurklurker(EnemyBase):
     def __init__(self):
-        super().__init__("Murklurker", 100, [
+        super().__init__("Murklurker", 30, [
             "Glarrrghrh",
             "Glurragh",
             "Garg Glurhgh",
@@ -77,7 +77,7 @@ class EnemyDominantMurklurker(EnemyBase):
 
 class EnemyFanatic(EnemyBase):
     def __init__(self):
-        super().__init__("Fanatic", 100, [
+        super().__init__("Fanatic", 30, [
             "THE LIGGIGHIHT! IT’S BEAUTiFUL!",
             "FROMDARKNESS CoMeS LiiGht!",
             "THeLi.ght WiLL GuiuiDE YOu!",
@@ -88,10 +88,12 @@ class EnemyFanatic(EnemyBase):
 class EnemyTeacher(EnemyBase):
     def __init__(self):
         self.count = 0
-        super().__init__("Teacher", 90, [
-            "Leave. Do not corrupt the children! They have been saved by the Light. You have tarnished their sanctuary!",
-            "We are not monsters! We are not insane! The Lighthouse grants us freedom from ourselves! You have to understand!",
-            "Without us, who will take care of the children? They are so young, so lost. We are here for them! For all of them!",
+        super().__init__("Teacher", 150, [
+            "Leave. Do not corrupt the children! They have been saved by the Light!",
+            "You have tarnished their sanctuary! We are not monsters!",
+            "We are not insane! The Lighthouse grants us freedom from ourselves!",
+            "You have to understand! Without us, who will take care of the children?",
+            "They are so young, so lost. We are here for them! For all of them!"
         ], ["Nothing", "Book"], [72, 28])
 
 

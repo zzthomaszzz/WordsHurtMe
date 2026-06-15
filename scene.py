@@ -109,6 +109,9 @@ class SceneCombat(SceneBase):
         self.is_damage_flash = False
         self.damage_flash_timer = 0.0
 
+        self.is_paused = False
+        self.pause_timer = 0.0
+
         self.font = pygame.font.SysFont(None, 25)
         self.font_large = pygame.font.SysFont(None, 150)
         self.user_text = ""
@@ -140,6 +143,8 @@ class SceneCombat(SceneBase):
         self.player_hp -= amount
         self.is_damage_flash = True
         self.damage_flash_timer = DAMAGE_FLASH_DURATION
+        self.is_paused = True
+        self.pause_timer = DAMAGE_PAUSE_DURATION
         if self.player_hp <= 0:
             self.next_scene = SceneLost()
         self.time = self.time_per_prompt
@@ -147,7 +152,8 @@ class SceneCombat(SceneBase):
     def handle_submission(self):
         if self.isStringEqual():
             self.handle_correct_answer()
-        self.take_damage(self.damage_wrong_letter)
+        else:
+            self.take_damage(self.damage_wrong_letter)
         self.user_text = ""
         self.player_is_submitted = False
 
@@ -175,6 +181,12 @@ class SceneCombat(SceneBase):
             if self.damage_flash_timer <= 0:
                 self.is_damage_flash = False
 
+        if self.is_paused:
+            self.pause_timer -= dt
+            if self.pause_timer <= 0:
+                self.is_paused = False
+            return
+
         if self.is_contemplating:
             self.contemplation_timer -= dt
             if self.contemplation_timer <= 0:
@@ -185,21 +197,6 @@ class SceneCombat(SceneBase):
             self.time = self.time_per_prompt
             self.user_text = ""
             self.take_damage(30)
-
-    def draw_enemy_health_bar(self, screen):
-        ratio = max(0.0, self.enemy.health / self.enemy.max_health)
-        r = min(255, int((1 - ratio) * 2 * 255))
-        g = min(255, int(ratio * 2 * 255))
-
-        bg_rect = pygame.Rect(ENEMY_HP_BAR_X, ENEMY_HP_BAR_Y, ENEMY_HP_BAR_W, ENEMY_HP_BAR_H)
-        pygame.draw.rect(screen, (50, 50, 50), bg_rect)
-
-        fill_h = int(ENEMY_HP_BAR_H * ratio)
-        fill_rect = pygame.Rect(ENEMY_HP_BAR_X, ENEMY_HP_BAR_Y + ENEMY_HP_BAR_H - fill_h, ENEMY_HP_BAR_W, fill_h)
-        pygame.draw.rect(screen, (r, g, 0), fill_rect)
-
-        name_surface = self.font.render(self.enemy.name, True, (255, 255, 255))
-        screen.blit(name_surface, (ENEMY_HP_BAR_X + ENEMY_HP_BAR_W // 2 - name_surface.get_width() // 2, ENEMY_HP_BAR_Y - 20))
 
     def draw_player_health_bar(self, screen):
         ratio = max(0.0, self.player_hp / 100)
@@ -275,7 +272,7 @@ class SceneCombat(SceneBase):
         super().process_input(events)
 
         for event in events:
-            if event.type == pygame.KEYDOWN and self.is_done_buffer:
+            if event.type == pygame.KEYDOWN and self.is_done_buffer and not self.is_paused:
                 mods = pygame.key.get_mods()
                 if mods & pygame.KMOD_CTRL:
                     self.handle_skill_input(event.key)
@@ -305,8 +302,6 @@ class SceneCombat(SceneBase):
 
         enemy_text_surface = self.font.render(self.enemy.current_prompt, True, (255, 255, 255))
         screen.blit(enemy_text_surface, (self.enemy_text_box.x + 5, self.enemy_text_box.y + 10))
-
-        self.draw_enemy_health_bar(screen)
 
         enemy_left_text = self.font.render(f"Enemies left: {len(self.area.enemies_list)}", True, (255, 255, 255))
         screen.blit(enemy_left_text, (1000, 100))
@@ -396,7 +391,7 @@ class SceneMain(SceneBase):
         pygame.draw.rect(screen, (0, 255, 0), self.button_old_chapel, 1)
 
         self.draw_area_label(screen, self.button_house, "House")
-        self.draw_area_label(screen, self.button_murkey_water, "Murkey Water")
+        self.draw_area_label(screen, self.button_murkey_water, "Murky Water")
         self.draw_area_label(screen, self.button_boat_house, "Boat House")
         self.draw_area_label(screen, self.button_chapel, "Chapel")
         self.draw_area_label(screen, self.button_lighthouse, "Lighthouse")
