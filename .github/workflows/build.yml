@@ -24,11 +24,14 @@ jobs:
       - name: Build executable
         run: pyinstaller main.spec
 
+      - name: Package dist folder
+        run: Compress-Archive -Path dist/* -DestinationPath WordsHurtMe.zip
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: WordsHurtMe-windows
-          path: dist/main.exe
+          path: WordsHurtMe.zip
           retention-days: 30
 
       - name: Create or update latest release
@@ -36,6 +39,6 @@ jobs:
         with:
           tag_name: latest
           name: Latest Build
-          body: "Auto-built from the latest commit on main."
+          body: "Download WordsHurtMe.zip, unzip, and run main.exe to play."
           prerelease: true
-          files: dist/main.exe
+          files: WordsHurtMe.zip
