@@ -1,4 +1,5 @@
 import random
+from item import Item
 
 class EnemyBase:
     def __init__(self, name, health, prompt, loots, weights):
@@ -16,7 +17,8 @@ class EnemyBase:
         self.is_dead = False
 
     def set_new_prompt(self):
-        self.current_prompt = random.choice(self.prompt)
+        choices = [p for p in self.prompt if p != self.current_prompt]
+        self.current_prompt = random.choice(choices if choices else self.prompt)
 
     def get_loot(self):
         return random.choices(self.loots, weights=self.weights, k=1)[0]
@@ -30,7 +32,7 @@ class EnemyVillager(EnemyBase):
             "Your eyes led you to your destruction. darkness awaits",
             "The Lighthouse guides us! He provides us with sustenance!",
             "Run away, and one of us dies instead!",
-        ], ["Nothing", "Murklurker Club"], [81, 19])
+        ], [None, Item("Murklurker Club", "health", 10, "weapon")], [81, 19])
 
 class EnemyPariah(EnemyBase):
     def __init__(self):
@@ -40,7 +42,7 @@ class EnemyPariah(EnemyBase):
             "We all have a purpose here. Even you... Even me",
             "I wish they could see the Light as I can. It’s beautiful…",
             "The murklurkers fear me! You will soon know why."
-        ], ["Nothing", "Pariah Spear"], [92, 8])
+        ], [None, Item("Pariah Spear", "stamina", 10, "weapon")], [92, 8])
 
 class EnemyApostle(EnemyBase):
     def __init__(self):
@@ -50,7 +52,7 @@ class EnemyApostle(EnemyBase):
             "Your death shall be quick! We offer you mercy!",
             "One moment of pain, and you rest in the Light for eternity!",
             "The Lighthouse is a kind God. You demonstrate His mercy."
-        ], ["Nothing", "Sacrificial Knife"], [64, 36])
+        ], [None, Item("Sacrificial Knife", "stamina", 5, "weapon"), Item("Prayer Beads", "stamina_regen", 1, "head")], [64, 27, 9])
 
 class EnemyMurklurker(EnemyBase):
     def __init__(self):
@@ -60,7 +62,7 @@ class EnemyMurklurker(EnemyBase):
             "Garg Glurhgh",
             "Gurlaargghg",
             "Gurgar Glargh"
-        ], ["Nothing", "Murklurker poop"], [99, 1])
+        ], [None, Item("Murklurker Poop", "health", 5)], [99, 1])
 
 class EnemyDominantMurklurker(EnemyBase):
     def __init__(self):
@@ -69,7 +71,7 @@ class EnemyDominantMurklurker(EnemyBase):
         super().__init__("Dominant Murklurker", 60, [
             "Glaurrrgha Gulllgarrh Guuuuuragh",
             "Glarrrrghhhh Gugharrrrgh Guhargh"
-        ], ["Nothing", "Murklurker poop"], [99, 1])
+        ], [None, Item("Murklurker Poop", "health", 5)], [99, 1])
 
     def set_new_prompt(self):
         self.current_prompt = self.prompt[self.count]
@@ -85,7 +87,7 @@ class EnemyFanatic(EnemyBase):
             "THeLi.ght WiLL GuiuiDE YOu!",
             "ReMoVe YOURUR EyE!S GaIN SaLVATION!",
             "CoMEE!E! To T!H!E Liighht! Be FoRgiVEn!"
-        ], ["Nothing", "Cloak of the devotee"], [72, 28])
+        ], [None, Item("Cloak of the Devotee", "damage_reduction", 5, "body")], [72, 28])
 
 class EnemyTeacher(EnemyBase):
     def __init__(self):
@@ -97,7 +99,7 @@ class EnemyTeacher(EnemyBase):
             "We are not insane! The Lighthouse grants us freedom from ourselves!",
             "You have to understand! Without us, who will take care of the children?",
             "They are so young, so lost. We are here for them! For all of them!"
-        ], ["Nothing", "Book"], [72, 28])
+        ], [None, Item("Book", "stamina", 15, "head")], [72, 28])
 
 
     def set_new_prompt(self):
@@ -115,7 +117,7 @@ class EnemyLighthouse(EnemyBase):
             "I have all the time in the world. Unlike you, death does not hinder me. Sit down and listen.",
             "The village you escaped. I am their nourishment. Their protection. Their guide. Their father. Their God.",
             "They came to me lost, scared, and confused. I freed them of their limitations, saved them from the Murklurkers."
-        ], ["Nothing"], [100])
+        ], [Item("Lighthouse Flame", "damage_reduction", 20, "body")], [100])
 
     def set_new_prompt(self):
         self.current_prompt = self.prompt[self.count]
