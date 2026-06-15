@@ -107,7 +107,11 @@ class SceneArea(SceneBase):
             y += 28
             if drops:
                 for item, pct in drops:
-                    drop_text = f"  • {item.name}  +{item.value} {item.stat.replace('_', ' ')}  ({pct}%)"
+                    if item.stat in ("damage_reduction", "stamina_regen"):
+                        val_str = f"+{item.value}% {item.stat.replace('_', ' ')}"
+                    else:
+                        val_str = f"+{item.value} {item.stat.replace('_', ' ')}"
+                    drop_text = f"  • {item.name}  {val_str}  ({pct}%)"
                     drop_surf = self.font.render(drop_text, True, (200, 200, 200))
                     screen.blit(drop_surf, (panel_x + PAD, y))
                     y += 22
@@ -203,12 +207,14 @@ class SceneCombat(SceneBase):
         bonus_hp = sum(i.value for i in equipped if i.stat == "health")
         bonus_stamina = sum(i.value for i in equipped if i.stat == "stamina")
         self.damage_reduction = sum(i.value for i in equipped if i.stat == "damage_reduction")
-        self.stamina_regen = PLAYER_BASE_STAMINA_REGEN + sum(i.value for i in equipped if i.stat == "stamina_regen")
 
         self.player_hp = PLAYER_BASE_HP + bonus_hp
         self.player_max_hp = self.player_hp
         self.player_stamina = PLAYER_BASE_STAMINA + bonus_stamina
         self.player_max_stamina = self.player_stamina
+
+        total_regen_pct = sum(i.value for i in equipped if i.stat == "stamina_regen")
+        self.stamina_regen = PLAYER_BASE_STAMINA_REGEN + (total_regen_pct / 100) * self.player_max_stamina
         self.player_is_submitted = False
 
         self.is_contemplating = False
@@ -254,7 +260,7 @@ class SceneCombat(SceneBase):
             self.time = self.time_per_prompt
 
     def take_damage(self, amount):
-        reduced = max(0, amount - self.damage_reduction)
+        reduced = round(amount * (1 - self.damage_reduction / 100))
         self.player_hp -= reduced
         self.is_damage_flash = True
         self.damage_flash_timer = DAMAGE_FLASH_DURATION
@@ -585,6 +591,8 @@ class SceneInventory(SceneBase):
         self.item_rects = []
         self.slot_rects = {}
 
+        self.selected_item = None
+
         self.skill_data = [
             ("Ctrl+1", "Contemplation", "Freeze the timer",  f"{int(SKILL_CONTEMPLATION_DURATION)}s  |  {SKILL_CONTEMPLATION_COST} SP"),
             ("Ctrl+2", "Delirium",      "No typo damage",    f"{int(SKILL_DELIRIUM_DURATION)}s  |  {SKILL_DELIRIUM_COST} SP"),
@@ -602,6 +610,7 @@ class SceneInventory(SceneBase):
                 for i, rect in enumerate(self.item_rects):
                     if rect.collidepoint(event.pos) and i < len(player_inventory):
                         item = player_inventory[i]
+                        self.selected_item = item
                         if item.equip_slot:
                             if player_equipment[item.equip_slot] == item:
                                 player_equipment[item.equip_slot] = None
@@ -616,6 +625,21 @@ class SceneInventory(SceneBase):
         fill_w = int(w * max(0.0, min(1.0, ratio)))
         if fill_w > 0:
             pygame.draw.rect(screen, color, pygame.Rect(x, y, fill_w, h))
+
+    def wrap_text(self, text, font, max_width):
+        words = text.split()
+        lines, line = [], ""
+        for word in words:
+            test = (line + " " + word).strip()
+            if font.size(test)[0] <= max_width:
+                line = test
+            else:
+                if line:
+                    lines.append(line)
+                line = word
+        if line:
+            lines.append(line)
+        return lines
 
     def render(self, screen):
         screen.fill((0, 0, 0))
@@ -642,9 +666,11 @@ class SceneInventory(SceneBase):
         screen.blit(hdr, (ITEMS_X + PAD, BOX_Y + PAD))
         pygame.draw.line(screen, (0, 255, 0), (ITEMS_X + PAD, BOX_Y + 36), (ITEMS_X + ITEMS_W - PAD, BOX_Y + 36), 1)
 
+        desc_sep_y = BOX_Y + PANEL_H - 110
         row_h = 26
+        max_rows = (desc_sep_y - (BOX_Y + 44)) // row_h
         if player_inventory:
-            for i, item in enumerate(player_inventory):
+            for i, item in enumerate(player_inventory[:max_rows]):
                 row_y = BOX_Y + 44 + i * row_h
                 row_rect = pygame.Rect(ITEMS_X + PAD, row_y, ITEMS_W - PAD * 2, row_h)
                 self.item_rects.append(row_rect)
@@ -657,10 +683,11 @@ class SceneInventory(SceneBase):
                 else:
                     text_color = (255, 255, 255)
 
-                line = self.font.render(
-                    f"{item.name}   +{item.value} {item.stat.replace('_', ' ')}",
-                    True, text_color
-                )
+                if item.stat in ("damage_reduction", "stamina_regen"):
+                    stat_str = f"+{item.value}% {item.stat.replace('_', ' ')}"
+                else:
+                    stat_str = f"+{item.value} {item.stat.replace('_', ' ')}"
+                line = self.font.render(f"{item.name}   {stat_str}", True, text_color)
                 screen.blit(line, (ITEMS_X + PAD, row_y + 3))
 
                 if is_equipped:
@@ -669,6 +696,19 @@ class SceneInventory(SceneBase):
         else:
             empty = self.font.render("No items collected yet.", True, (80, 80, 80))
             screen.blit(empty, (ITEMS_X + PAD, BOX_Y + 44))
+
+        # --- Description panel (bottom of items box) ---
+        pygame.draw.line(screen, (0, 255, 0), (ITEMS_X + PAD, desc_sep_y), (ITEMS_X + ITEMS_W - PAD, desc_sep_y), 1)
+        desc_x = ITEMS_X + PAD
+        desc_w = ITEMS_W - PAD * 2
+        if self.selected_item and self.selected_item.description:
+            lines = self.wrap_text(self.selected_item.description, self.font_small, desc_w)
+            for j, text_line in enumerate(lines[:4]):
+                surf = self.font_small.render(text_line, True, (200, 200, 200))
+                screen.blit(surf, (desc_x, desc_sep_y + 6 + j * 22))
+        else:
+            hint = self.font_small.render("Click an item for details.", True, (70, 70, 70))
+            screen.blit(hint, (desc_x, desc_sep_y + 6))
 
         # --- Equipment panel ---
         equip_rect = pygame.Rect(EQUIP_X, BOX_Y, EQUIP_W, PANEL_H)
@@ -694,10 +734,11 @@ class SceneInventory(SceneBase):
             if equipped_item:
                 name_surf = self.font.render(equipped_item.name, True, (255, 255, 255))
                 screen.blit(name_surf, (s_rect.x + 8, s_rect.y + 28))
-                stat_surf = self.font_small.render(
-                    f"+{equipped_item.value} {equipped_item.stat.replace('_', ' ')}",
-                    True, (255, 215, 0)
-                )
+                if equipped_item.stat in ("damage_reduction", "stamina_regen"):
+                    eq_stat_str = f"+{equipped_item.value}% {equipped_item.stat.replace('_', ' ')}"
+                else:
+                    eq_stat_str = f"+{equipped_item.value} {equipped_item.stat.replace('_', ' ')}"
+                stat_surf = self.font_small.render(eq_stat_str, True, (255, 215, 0))
                 screen.blit(stat_surf, (s_rect.x + 8, s_rect.y + 50))
             else:
                 empty_surf = self.font.render("— empty —", True, (60, 60, 60))
@@ -718,7 +759,7 @@ class SceneInventory(SceneBase):
         bonus_regen = sum(i.value for i in equipped if i.stat == "stamina_regen")
         total_hp = PLAYER_BASE_HP + bonus_hp
         total_sp = PLAYER_BASE_STAMINA + bonus_sp
-        total_regen = PLAYER_BASE_STAMINA_REGEN + bonus_regen
+        total_regen = PLAYER_BASE_STAMINA_REGEN + (bonus_regen / 100) * total_sp
 
         bar_x = STATS_X + PAD
         bar_w = STATS_W - PAD * 2
@@ -727,8 +768,8 @@ class SceneInventory(SceneBase):
         stat_rows = [
             ("HP",            f"{total_hp}  (base {PLAYER_BASE_HP} + {bonus_hp})", min(1.0, total_hp / 200), (80, 200, 80)),
             ("Stamina",       f"{total_sp}  (base {PLAYER_BASE_STAMINA} + {bonus_sp})", min(1.0, total_sp / 200), (255, 215, 0)),
-            ("Dmg Reduction", f"{bonus_dr}  flat per hit",                              min(1.0, bonus_dr / 50), (0, 180, 255)),
-            ("SP Regen",      f"{total_regen}/s  (base {PLAYER_BASE_STAMINA_REGEN} + {bonus_regen})", min(1.0, total_regen / 10), (0, 200, 160)),
+            ("Dmg Reduction", f"{bonus_dr}%",                                           min(1.0, bonus_dr / 100), (0, 180, 255)),
+            ("SP Regen",      f"{total_regen:.1f}/s  (base {PLAYER_BASE_STAMINA_REGEN} + {bonus_regen}% of SP)", min(1.0, total_regen / 20), (0, 200, 160)),
         ]
         for i, (label, value_text, ratio, color) in enumerate(stat_rows):
             ry = BOX_Y + 44 + i * 82
