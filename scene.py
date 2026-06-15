@@ -106,6 +106,12 @@ class SceneCombat(SceneBase):
         self.is_contemplating = False
         self.contemplation_timer = 0.0
 
+        self.is_delirium = False
+        self.delirium_timer = 0.0
+
+        self.is_acceptance = False
+        self.acceptance_timer = 0.0
+
         self.is_damage_flash = False
         self.damage_flash_timer = 0.0
 
@@ -170,7 +176,6 @@ class SceneCombat(SceneBase):
         del self.area.enemies_list[0]
         if len(self.area.enemies_list) > 0:
             self.enemy = self.area.enemies_list[0]
-            self.enemy.set_new_prompt()
             self.time = self.time_per_prompt
         else:
             self.next_scene = SceneVictory(self.loot_collected)
@@ -187,6 +192,16 @@ class SceneCombat(SceneBase):
                 self.is_paused = False
             return
 
+        if self.is_delirium:
+            self.delirium_timer -= dt
+            if self.delirium_timer <= 0:
+                self.is_delirium = False
+
+        if self.is_acceptance:
+            self.acceptance_timer -= dt
+            if self.acceptance_timer <= 0:
+                self.is_acceptance = False
+
         if self.is_contemplating:
             self.contemplation_timer -= dt
             if self.contemplation_timer <= 0:
@@ -196,7 +211,8 @@ class SceneCombat(SceneBase):
         if self.time <= 0:
             self.time = self.time_per_prompt
             self.user_text = ""
-            self.take_damage(30)
+            timer_damage = self.damage_wrong_letter // 2 if self.is_acceptance else self.damage_wrong_letter
+            self.take_damage(timer_damage)
 
     def draw_player_health_bar(self, screen):
         ratio = max(0.0, self.player_hp / 100)
@@ -251,7 +267,10 @@ class SceneCombat(SceneBase):
             square_x = TIMER_BAR_X + i * slot_width + (slot_width - SKILL_SLOT_SIZE) // 2
             rect = pygame.Rect(square_x, SKILL_SLOT_Y, SKILL_SLOT_SIZE, SKILL_SLOT_SIZE)
             pygame.draw.rect(screen, (60, 60, 60), rect)
-            pygame.draw.rect(screen, (140, 140, 140), rect, 2)
+            border_color = (180, 0, 255) if i == 1 and self.is_delirium else \
+                           (255, 165, 0) if i == 4 and self.is_acceptance else \
+                           (140, 140, 140)
+            pygame.draw.rect(screen, border_color, rect, 2)
 
             label = self.font.render(str(i + 1), True, (180, 180, 180))
             screen.blit(label, (square_x + SKILL_SLOT_SIZE // 2 - label.get_width() // 2,
@@ -261,12 +280,44 @@ class SceneCombat(SceneBase):
         match key:
             case pygame.K_1:
                 self.activate_contemplation()
+            case pygame.K_2:
+                self.activate_delirium()
+            case pygame.K_3:
+                self.activate_concentration()
+            case pygame.K_4:
+                self.activate_denial()
+            case pygame.K_5:
+                self.activate_acceptance()
 
     def activate_contemplation(self):
         if not self.is_contemplating and self.player_stamina >= SKILL_CONTEMPLATION_COST:
             self.is_contemplating = True
             self.contemplation_timer = SKILL_CONTEMPLATION_DURATION
             self.player_stamina -= SKILL_CONTEMPLATION_COST
+
+    def activate_delirium(self):
+        if not self.is_delirium and self.player_stamina >= SKILL_DELIRIUM_COST:
+            self.is_delirium = True
+            self.delirium_timer = SKILL_DELIRIUM_DURATION
+            self.player_stamina -= SKILL_DELIRIUM_COST
+
+    def activate_concentration(self):
+        if self.player_stamina >= SKILL_CONCENTRATION_COST:
+            self.time = min(self.time + SKILL_CONCENTRATION_TIME_BONUS, self.time_per_prompt)
+            self.player_stamina -= SKILL_CONCENTRATION_COST
+
+    def activate_denial(self):
+        if not self.enemy.is_boss and self.player_stamina >= SKILL_DENIAL_COST:
+            self.enemy.set_new_prompt()
+            self.time = self.time_per_prompt
+            self.user_text = ""
+            self.player_stamina -= SKILL_DENIAL_COST
+
+    def activate_acceptance(self):
+        if not self.is_acceptance and self.player_stamina >= SKILL_ACCEPTANCE_COST:
+            self.is_acceptance = True
+            self.acceptance_timer = SKILL_ACCEPTANCE_DURATION
+            self.player_stamina -= SKILL_ACCEPTANCE_COST
 
     def process_input(self, events):
         super().process_input(events)
@@ -286,7 +337,8 @@ class SceneCombat(SceneBase):
                         self.user_text += event.unicode
                     else:
                         self.user_text = ""
-                        self.take_damage(self.damage_wrong_letter)
+                        if not self.is_delirium:
+                            self.take_damage(self.damage_wrong_letter)
 
     def render(self, screen):
         if not self.is_done_buffer:

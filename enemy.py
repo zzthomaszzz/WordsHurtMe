@@ -10,6 +10,7 @@ class EnemyBase:
         self.loots = loots
         self.weights = weights
 
+        self.is_boss = False
         self.current_prompt = ""
         self.set_new_prompt()
         self.is_dead = False
@@ -64,6 +65,7 @@ class EnemyMurklurker(EnemyBase):
 class EnemyDominantMurklurker(EnemyBase):
     def __init__(self):
         self.count = 0
+        self.is_boss = True
         super().__init__("Dominant Murklurker", 60, [
             "Glaurrrgha Gulllgarrh Guuuuuragh",
             "Glarrrrghhhh Gugharrrrgh Guhargh"
@@ -88,6 +90,7 @@ class EnemyFanatic(EnemyBase):
 class EnemyTeacher(EnemyBase):
     def __init__(self):
         self.count = 0
+        self.is_boss = True
         super().__init__("Teacher", 150, [
             "Leave. Do not corrupt the children! They have been saved by the Light!",
             "You have tarnished their sanctuary! We are not monsters!",
@@ -106,6 +109,7 @@ class EnemyTeacher(EnemyBase):
 class EnemyLighthouse(EnemyBase):
     def __init__(self):
         self.count = 0
+        self.is_boss = True
         super().__init__("Lighthouse", 120, [
             "Hello, Human. Have you come for the light? I cannot blame you for your desire.",
             "I have all the time in the world. Unlike you, death does not hinder me. Sit down and listen.",
