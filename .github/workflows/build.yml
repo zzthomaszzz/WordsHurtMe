@@ -24,6 +24,9 @@ jobs:
       - name: Build executable
         run: pyinstaller main.spec
 
+      - name: Copy assets into dist
+        run: Copy-Item -Recurse -Force assets dist\assets
+
       - name: Package dist folder
         run: Compress-Archive -Path dist/* -DestinationPath WordsHurtMe.zip
 
