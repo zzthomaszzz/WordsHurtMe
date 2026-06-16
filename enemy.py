@@ -164,8 +164,6 @@ class EnemyFanatic(EnemyBase):
 
 class EnemyTeacher(EnemyBase):
     def __init__(self):
-        self.count = 0
-        self.is_boss = True
         super().__init__("Teacher", 150, [
             "Leave. Do not corrupt the children! They have been saved by the Light.",
             "You have tarnished their sanctuary! We are not monsters!",
@@ -176,12 +174,6 @@ class EnemyTeacher(EnemyBase):
             None,
             ITEM_SEAWEED_HELMET,
         ], [60, 40])
-
-    def set_new_prompt(self):
-        self.current_prompt = self.prompt[self.count]
-        self.count += 1
-        if self.count >= len(self.prompt):
-            self.count = 0
 
 class EnemyLighthouse(EnemyBase):
     def __init__(self):
