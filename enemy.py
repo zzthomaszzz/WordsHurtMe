@@ -164,7 +164,7 @@ class EnemyFanatic(EnemyBase):
 
 class EnemyTeacher(EnemyBase):
     def __init__(self):
-        super().__init__("Teacher", 150, [
+        super().__init__("Teacher", 30, [
             "Leave. Do not corrupt the children! They have been saved by the Light.",
             "You have tarnished their sanctuary! We are not monsters!",
             "We are not insane! The Lighthouse grants us freedom from ourselves!",
