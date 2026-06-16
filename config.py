@@ -83,6 +83,18 @@ IMAGE_ENEMY_PATH = ""
 IMAGE_ENEMY_X = 0
 IMAGE_ENEMY_Y = 0
 
+ENEMY_IMAGE_SIZE = 280
+ENEMY_IMAGE_X = WINDOW_WIDTH // 2 - ENEMY_IMAGE_SIZE // 2
+ENEMY_IMAGE_Y = 110
+
+ENEMY_THUMBNAIL_SIZE = 64
+
+ENEMY_IMAGE_PATHS = {
+    "Murklurker":          "assets/murk_lurker.png",
+    "Dominant Murklurker": "assets/dominant_murk_lurker.png",
+    "Teacher":             "assets/teacher.png",
+}
+
 BUFFER_TIME = 3
 
 #Prompt timers per area

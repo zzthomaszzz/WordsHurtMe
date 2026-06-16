@@ -102,8 +102,8 @@ class EnemyDominantMurklurker(EnemyBase):
         self.count = 0
         self.is_boss = True
         super().__init__("Dominant Murklurker", 60, [
-            "Glaurrrgha Gulllgarrh Guuuuuragh",
-            "Glarrrrghhhh Gugharrrrgh Guhargh"
+            "Glaurrrgha Gulllgarrh",
+            "Glarrrrghhhh Gugharrrrgh"
         ], [
             None,
             ITEM_MURKLURKER_TOOTH,

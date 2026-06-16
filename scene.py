@@ -58,11 +58,17 @@ class SceneArea(SceneBase):
                 ]
                 self.enemy_previews.append((e.name, drops))
 
-        # Pre-compute panel height to match render exactly:
-        # header section ends at y-offset 76, then 28px name + 22px*drops + 10px gap per enemy
+        self.enemy_thumbnails = {}
+        for enemy_name, _ in self.enemy_previews:
+            path = ENEMY_IMAGE_PATHS.get(enemy_name)
+            if path:
+                self.enemy_thumbnails[enemy_name] = pygame.transform.smoothscale(pygame.image.load(path).convert_alpha(), (ENEMY_THUMBNAIL_SIZE, ENEMY_THUMBNAIL_SIZE))
+            else:
+                self.enemy_thumbnails[enemy_name] = None
+
         PAD = 10
         self.panel_w = 450
-        self.panel_h = 76 + sum(28 + max(1, len(drops)) * 22 + 10 for _, drops in self.enemy_previews) + PAD
+        self.panel_h = 76 + sum(max(28, ENEMY_THUMBNAIL_SIZE) + max(1, len(drops)) * 22 + 10 for _, drops in self.enemy_previews) + PAD
 
     def process_input(self, events):
         super().process_input(events)
@@ -102,9 +108,14 @@ class SceneArea(SceneBase):
 
         y = panel_y + 76
         for enemy_name, drops in self.enemy_previews:
+            thumb = self.enemy_thumbnails.get(enemy_name)
+            if thumb:
+                screen.blit(thumb, (panel_x + PAD, y))
+            else:
+                pygame.draw.rect(screen, (50, 50, 50), (panel_x + PAD, y, ENEMY_THUMBNAIL_SIZE, ENEMY_THUMBNAIL_SIZE))
             name_surf = self.font_header.render(enemy_name, True, (255, 215, 0))
-            screen.blit(name_surf, (panel_x + PAD, y))
-            y += 28
+            screen.blit(name_surf, (panel_x + PAD + ENEMY_THUMBNAIL_SIZE + 8, y + 20))
+            y += max(28, ENEMY_THUMBNAIL_SIZE) + 4
             if drops:
                 for item, pct in drops:
                     if item.stat in ("damage_reduction", "stamina_regen"):
@@ -242,6 +253,16 @@ class SceneCombat(SceneBase):
         self.enemy_text_box = pygame.rect.Rect(BUTTON_ENEMY_TEXT_BOX_X, BUTTON_ENEMY_TEXT_BOX_Y, BUTTON_ENEMY_TEXT_BOX_WIDTH, BUTTON_ENEMY_TEXT_BOX_HEIGHT)
         self.enemy = self.area.current_enemy
 
+        self.enemy_image = None
+        self.load_enemy_image()
+
+    def load_enemy_image(self):
+        path = ENEMY_IMAGE_PATHS.get(self.enemy.name)
+        if path:
+            self.enemy_image = pygame.transform.smoothscale(pygame.image.load(path).convert_alpha(), (ENEMY_IMAGE_SIZE, ENEMY_IMAGE_SIZE))
+        else:
+            self.enemy_image = None
+
     def isStringEqual(self):
         return self.user_text == self.enemy.current_prompt
 
@@ -294,6 +315,7 @@ class SceneCombat(SceneBase):
         del self.area.enemies_list[0]
         if len(self.area.enemies_list) > 0:
             self.enemy = self.area.enemies_list[0]
+            self.load_enemy_image()
             self.time = self.time_per_prompt
         else:
             self.next_scene = SceneVictory(self.loot_collected)
@@ -466,6 +488,12 @@ class SceneCombat(SceneBase):
             screen.fill((0, 125, 125))
         else:
             screen.fill((0, 0, 0))
+
+        if self.is_done_buffer:
+            if self.enemy_image:
+                screen.blit(self.enemy_image, (ENEMY_IMAGE_X, ENEMY_IMAGE_Y))
+            else:
+                pygame.draw.rect(screen, (40, 40, 40), (ENEMY_IMAGE_X, ENEMY_IMAGE_Y, ENEMY_IMAGE_SIZE, ENEMY_IMAGE_SIZE))
 
         pygame.draw.rect(screen, (0, 255, 0 ), self.input_box, 2)
         pygame.draw.rect(screen, (0, 255, 0), self.enemy_text_box, 2)
