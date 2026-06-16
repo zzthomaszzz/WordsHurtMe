@@ -176,7 +176,7 @@ BUTTON_INVENTORY_Y = WINDOW_HEIGHT - 50
 
 #Items
 #---Weapons---
-ITEM_NAVIGATION_STICK = Item("Navigation Stick", "stamina", 100, "weapon",
+ITEM_NAVIGATION_STICK = Item("Navigation Stick", "stamina", 10, "weapon",
     "Amazingly, these are not as common as you'd believe. Before they reach adulthood, the villagers slowly map out every section of the village through humiliating trial and error, trial and error which involves falling into the water more often than not. You assume this is for a child that hasn't gained that pattern recognition yet. Poor child.")
 ITEM_MURKLURKER_CLUB = Item("Murklurker Club", "stamina", 15, "weapon",
     "A club with Murklurker teeth. Ironically, it's not very effective against the Murklurkers themselves. The Pariahs tried once. They never tried again.")
