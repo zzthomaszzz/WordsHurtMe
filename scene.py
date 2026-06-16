@@ -249,6 +249,7 @@ class SceneCombat(SceneBase):
         self.input_box = pygame.rect.Rect(BUTTON_INPUT_BOX_X, BUTTON_INPUT_BOX_Y, BUTTON_INPUT_BOX_WIDTH, BUTTON_INPUT_BOX_HEIGHT)
 
         self.area = area
+        self.bg_image = pygame.transform.smoothscale(pygame.image.load(area.bg_image_path).convert_alpha(), (WINDOW_WIDTH, WINDOW_HEIGHT))
 
         self.enemy_text_box = pygame.rect.Rect(BUTTON_ENEMY_TEXT_BOX_X, BUTTON_ENEMY_TEXT_BOX_Y, BUTTON_ENEMY_TEXT_BOX_WIDTH, BUTTON_ENEMY_TEXT_BOX_HEIGHT)
         self.enemy = self.area.current_enemy
@@ -484,10 +485,7 @@ class SceneCombat(SceneBase):
                                 self.take_damage(self.damage_wrong_letter)
 
     def render(self, screen):
-        if not self.is_done_buffer:
-            screen.fill((0, 125, 125))
-        else:
-            screen.fill((0, 0, 0))
+        screen.blit(self.bg_image, (0, 0))
 
         if self.is_done_buffer:
             if self.enemy_image:
