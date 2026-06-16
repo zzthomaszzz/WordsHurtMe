@@ -93,6 +93,8 @@ ENEMY_IMAGE_PATHS = {
     "Murklurker":          "assets/murk_lurker.png",
     "Dominant Murklurker": "assets/dominant_murk_lurker.png",
     "Teacher":             "assets/teacher.png",
+    "Pariah":              "assets/pariah.png",
+    "Apostle":             "assets/apostle.png",
 }
 
 BUFFER_TIME = 3

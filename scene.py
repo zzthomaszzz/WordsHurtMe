@@ -24,9 +24,9 @@ class SceneArea(SceneBase):
         self.image_background = pygame.transform.smoothscale(pygame.image.load(image_background).convert_alpha(), (WINDOW_WIDTH, WINDOW_HEIGHT))
         self.class_next_scene = class_next_scene
 
-        self.font = pygame.font.SysFont(None, 26)
-        self.font_header = pygame.font.SysFont(None, 32)
-        self.font_title = pygame.font.SysFont(None, 52)
+        self.font = pygame.font.Font(None, 26)
+        self.font_header = pygame.font.Font(None, 32)
+        self.font_title = pygame.font.Font(None, 52)
 
         self.button_width = 150
         self.button_height = 60
@@ -150,8 +150,8 @@ class SceneArea(SceneBase):
 class SceneVictory(SceneBase):
     def __init__(self, loot_collected):
         super().__init__()
-        self.font = pygame.font.SysFont(None, 30)
-        self.font_title = pygame.font.SysFont(None, 60)
+        self.font = pygame.font.Font(None, 30)
+        self.font_title = pygame.font.Font(None, 60)
         self.loot_collected = loot_collected
         self.button_back = pygame.Rect(WINDOW_WIDTH // 2 - 100, WINDOW_HEIGHT - 80, 200, 50)
 
@@ -189,7 +189,7 @@ class SceneLost(SceneBase):
     def __init__(self):
         super().__init__()
 
-        self.font = pygame.font.SysFont(None, 30)
+        self.font = pygame.font.Font(None, 30)
         self.timer = 3
 
     def update(self, dt):
@@ -243,8 +243,8 @@ class SceneCombat(SceneBase):
         self.is_paused = False
         self.pause_timer = 0.0
 
-        self.font = pygame.font.SysFont(None, 25)
-        self.font_large = pygame.font.SysFont(None, 150)
+        self.font = pygame.font.Font(None, 25)
+        self.font_large = pygame.font.Font(None, 150)
         self.user_text = ""
         self.input_box = pygame.rect.Rect(BUTTON_INPUT_BOX_X, BUTTON_INPUT_BOX_Y, BUTTON_INPUT_BOX_WIDTH, BUTTON_INPUT_BOX_HEIGHT)
 
@@ -545,7 +545,7 @@ class SceneMain(SceneBase):
 
         self.image_background = pygame.transform.smoothscale(pygame.image.load(BACKGROUND_IMAGE_PATH).convert_alpha(), (WINDOW_WIDTH, WINDOW_HEIGHT))
 
-        self.font = pygame.font.SysFont(None, 22)
+        self.font = pygame.font.Font(None, 22)
         self.button_inventory = pygame.Rect(BUTTON_INVENTORY_X, BUTTON_INVENTORY_Y, BUTTON_INVENTORY_WIDTH, BUTTON_INVENTORY_HEIGHT)
 
     def draw_area_label(self, screen, button, name):
@@ -611,10 +611,10 @@ class SceneMain(SceneBase):
 class SceneInventory(SceneBase):
     def __init__(self):
         super().__init__()
-        self.font = pygame.font.SysFont(None, 25)
-        self.font_header = pygame.font.SysFont(None, 30)
-        self.font_title = pygame.font.SysFont(None, 50)
-        self.font_small = pygame.font.SysFont(None, 22)
+        self.font = pygame.font.Font(None, 25)
+        self.font_header = pygame.font.Font(None, 30)
+        self.font_title = pygame.font.Font(None, 50)
+        self.font_small = pygame.font.Font(None, 22)
         self.button_back = pygame.Rect(30, WINDOW_HEIGHT - 55, 150, 40)
         self.item_rects = []
         self.slot_rects = {}
