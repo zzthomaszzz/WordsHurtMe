@@ -17,7 +17,8 @@ class EnemyBase:
         self.loots = loots
         self.weights = weights
 
-        self.is_boss = False
+        if not hasattr(self, 'is_boss'):
+            self.is_boss = False
         self.current_prompt = ""
         self.set_new_prompt()
         self.is_dead = False
