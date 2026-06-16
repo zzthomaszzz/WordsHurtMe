@@ -193,7 +193,7 @@ class EnemyLighthouse(EnemyBase):
             "They came to me lost, scared, and confused. I freed them of their limitations, saved them from the Murklurkers.",
             "All I asked in return was their sight. Their eyes lead them astray. I provided them the guidance their vision failed to.",
             "And they worship me. Their loyalty, their gratitude, the lives they offer for my favor. Isn't it beautiful?",
-            "I offer you once chance. Remove your eyes. Join them.",
+            "I offer you one chance. Remove your eyes. Join them.",
             "No? You arrogant imbecile. You will suffer for your insolence.",
             "JOIN THEM! JOINTHEM! JOINTHEMJOINTHEMJOINTHEMJOINTHEMJOINTHEM!",
             "REMOVEYOUREYES!REMOVEYOUREYES!REMOVEYOUREYES!REMOVEYOUREYES!",

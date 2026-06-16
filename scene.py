@@ -493,7 +493,9 @@ class SceneCombat(SceneBase):
             else:
                 pygame.draw.rect(screen, (40, 40, 40), (ENEMY_IMAGE_X, ENEMY_IMAGE_Y, ENEMY_IMAGE_SIZE, ENEMY_IMAGE_SIZE))
 
-        pygame.draw.rect(screen, (0, 255, 0 ), self.input_box, 2)
+        pygame.draw.rect(screen, (15, 15, 15), self.input_box)
+        pygame.draw.rect(screen, (0, 255, 0), self.input_box, 2)
+        pygame.draw.rect(screen, (15, 15, 15), self.enemy_text_box)
         pygame.draw.rect(screen, (0, 255, 0), self.enemy_text_box, 2)
 
         text_surface = self.font.render(self.user_text, True, (255, 255, 255))
@@ -618,6 +620,7 @@ class SceneInventory(SceneBase):
         self.slot_rects = {}
 
         self.selected_item = None
+        self.scroll_offset = 0
 
         self.skill_data = [
             ("Ctrl+1", "Contemplation", "Freeze the timer",  f"{int(SKILL_CONTEMPLATION_DURATION)}s  |  {SKILL_CONTEMPLATION_COST} SP"),
@@ -634,8 +637,9 @@ class SceneInventory(SceneBase):
                 if self.button_back.collidepoint(event.pos):
                     self.next_scene = SceneMain()
                 for i, rect in enumerate(self.item_rects):
-                    if rect.collidepoint(event.pos) and i < len(player_inventory):
-                        item = player_inventory[i]
+                    actual_i = i + self.scroll_offset
+                    if rect.collidepoint(event.pos) and actual_i < len(player_inventory):
+                        item = player_inventory[actual_i]
                         self.selected_item = item
                         if item.equip_slot:
                             if player_equipment[item.equip_slot] == item:
@@ -645,6 +649,12 @@ class SceneInventory(SceneBase):
                 for slot_name, rect in self.slot_rects.items():
                     if rect.collidepoint(event.pos):
                         player_equipment[slot_name] = None
+            if event.type == pygame.MOUSEWHEEL:
+                row_h = 26
+                desc_sep_y = 68 + 400 - 110
+                max_rows = (desc_sep_y - (68 + 44)) // row_h
+                max_offset = max(0, len(player_inventory) - max_rows)
+                self.scroll_offset = max(0, min(max_offset, self.scroll_offset - event.y))
 
     def draw_bar(self, screen, x, y, w, h, ratio, color):
         pygame.draw.rect(screen, (50, 50, 50), pygame.Rect(x, y, w, h))
@@ -696,7 +706,7 @@ class SceneInventory(SceneBase):
         row_h = 26
         max_rows = (desc_sep_y - (BOX_Y + 44)) // row_h
         if player_inventory:
-            for i, item in enumerate(player_inventory[:max_rows]):
+            for i, item in enumerate(player_inventory[self.scroll_offset:self.scroll_offset + max_rows]):
                 row_y = BOX_Y + 44 + i * row_h
                 row_rect = pygame.Rect(ITEMS_X + PAD, row_y, ITEMS_W - PAD * 2, row_h)
                 self.item_rects.append(row_rect)
