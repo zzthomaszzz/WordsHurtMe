@@ -133,15 +133,17 @@ class SceneArea(SceneBase):
             y += 10
 
         # Buttons with labels
-        pygame.draw.rect(screen, (0, 255, 0), self.button_go_back)
-        back_lbl = self.font.render("Go Back", True, (0, 0, 0))
+        pygame.draw.rect(screen, (15, 15, 15), self.button_go_back)
+        pygame.draw.rect(screen, (0, 255, 0), self.button_go_back, 2)
+        back_lbl = self.font.render("Go Back", True, (255, 255, 255))
         screen.blit(back_lbl, (
             self.button_go_back.x + self.button_go_back.width // 2 - back_lbl.get_width() // 2,
             self.button_go_back.y + self.button_go_back.height // 2 - back_lbl.get_height() // 2
         ))
 
-        pygame.draw.rect(screen, (0, 255, 0), self.button_go_to_combat)
-        start_lbl = self.font.render("Start", True, (0, 0, 0))
+        pygame.draw.rect(screen, (15, 15, 15), self.button_go_to_combat)
+        pygame.draw.rect(screen, (0, 255, 0), self.button_go_to_combat, 2)
+        start_lbl = self.font.render("Start", True, (255, 255, 255))
         screen.blit(start_lbl, (
             self.button_go_to_combat.x + self.button_go_to_combat.width // 2 - start_lbl.get_width() // 2,
             self.button_go_to_combat.y + self.button_go_to_combat.height // 2 - start_lbl.get_height() // 2
@@ -180,8 +182,9 @@ class SceneVictory(SceneBase):
             nothing = self.font.render("No loot this run.", True, (150, 150, 150))
             screen.blit(nothing, (WINDOW_WIDTH // 2 - nothing.get_width() // 2, 200))
 
-        pygame.draw.rect(screen, (0, 200, 0), self.button_back)
-        label = self.font.render("Back to Map", True, (0, 0, 0))
+        pygame.draw.rect(screen, (15, 15, 15), self.button_back)
+        pygame.draw.rect(screen, (0, 255, 0), self.button_back, 2)
+        label = self.font.render("Back to Map", True, (255, 255, 255))
         screen.blit(label, (self.button_back.x + self.button_back.width // 2 - label.get_width() // 2,
                              self.button_back.y + self.button_back.height // 2 - label.get_height() // 2))
 
@@ -547,6 +550,7 @@ class SceneMain(SceneBase):
 
         self.font = pygame.font.Font(None, 22)
         self.button_inventory = pygame.Rect(BUTTON_INVENTORY_X, BUTTON_INVENTORY_Y, BUTTON_INVENTORY_WIDTH, BUTTON_INVENTORY_HEIGHT)
+        self.button_back = pygame.Rect(0, WINDOW_HEIGHT - 60, 150, 60)
 
     def draw_area_label(self, screen, button, name):
         label = self.font.render(name, True, (0, 255, 255))
@@ -574,6 +578,8 @@ class SceneMain(SceneBase):
                     self.next_scene = SceneArea(class_next_scene=AreaOldChapel)
                 if self.button_inventory.collidepoint(x, y):
                     self.next_scene = SceneInventory()
+                if self.button_back.collidepoint(x, y):
+                    self.next_scene = SceneMenu()
 
     def render(self, screen):
         screen.fill((0, 0, 0))
@@ -601,11 +607,20 @@ class SceneMain(SceneBase):
         self.draw_area_label(screen, self.button_lighthouse, "Lighthouse")
         self.draw_area_label(screen, self.button_old_chapel, "Old Chapel")
 
-        pygame.draw.rect(screen, (0, 255, 0), self.button_inventory)
-        inv_label = self.font.render("Inventory", True, (0, 0, 0))
+        pygame.draw.rect(screen, (15, 15, 15), self.button_inventory)
+        pygame.draw.rect(screen, (0, 255, 0), self.button_inventory, 2)
+        inv_label = self.font.render("Inventory", True, (255, 255, 255))
         screen.blit(inv_label, (
             self.button_inventory.x + self.button_inventory.width // 2 - inv_label.get_width() // 2,
             self.button_inventory.y + self.button_inventory.height // 2 - inv_label.get_height() // 2
+        ))
+
+        pygame.draw.rect(screen, (15, 15, 15), self.button_back)
+        pygame.draw.rect(screen, (0, 255, 0), self.button_back, 2)
+        back_label = self.font.render("Back", True, (255, 255, 255))
+        screen.blit(back_label, (
+            self.button_back.x + self.button_back.width // 2 - back_label.get_width() // 2,
+            self.button_back.y + self.button_back.height // 2 - back_label.get_height() // 2
         ))
 
 class SceneInventory(SceneBase):
@@ -846,8 +861,9 @@ class SceneInventory(SceneBase):
             screen.blit(cost_surf, (mid - cost_surf.get_width() // 2, card_y + 72))
 
         # Back button
-        pygame.draw.rect(screen, (0, 255, 0), self.button_back)
-        lbl = self.font.render("Back", True, (0, 0, 0))
+        pygame.draw.rect(screen, (15, 15, 15), self.button_back)
+        pygame.draw.rect(screen, (0, 255, 0), self.button_back, 2)
+        lbl = self.font.render("Back", True, (255, 255, 255))
         screen.blit(lbl, (
             self.button_back.x + self.button_back.width // 2 - lbl.get_width() // 2,
             self.button_back.y + self.button_back.height // 2 - lbl.get_height() // 2
@@ -860,6 +876,10 @@ class SceneMenu(SceneBase):
         #Start button always in center
         self.button_start_game = pygame.rect.Rect(BUTTON_START_X, BUTTON_START_Y, BUTTON_START_WIDTH, BUTTON_START_HEIGHT)
 
+        self.font_title = pygame.font.Font(None, 90)
+        self.font_subtitle = pygame.font.Font(None, 30)
+        self.font_button = pygame.font.Font(None, 32)
+
     def process_input(self, events):
         super().process_input(events)
         for event in events:
@@ -869,5 +889,18 @@ class SceneMenu(SceneBase):
                     self.next_scene = SceneMain()
 
     def render(self, screen):
-        screen.fill((0, 0, 255))
-        pygame.draw.rect(screen, (0, 255, 0), self.button_start_game)
+        screen.fill((0, 0, 0))
+
+        title = self.font_title.render("Words Hurt Me", True, (255, 255, 255))
+        screen.blit(title, (WINDOW_WIDTH // 2 - title.get_width() // 2, 160))
+
+        subtitle = self.font_subtitle.render("Type to survive. Every wrong letter costs you.", True, (160, 160, 160))
+        screen.blit(subtitle, (WINDOW_WIDTH // 2 - subtitle.get_width() // 2, 270))
+
+        pygame.draw.rect(screen, (15, 15, 15), self.button_start_game)
+        pygame.draw.rect(screen, (0, 255, 0), self.button_start_game, 2)
+        label = self.font_button.render("Start", True, (255, 255, 255))
+        screen.blit(label, (
+            self.button_start_game.x + self.button_start_game.width // 2 - label.get_width() // 2,
+            self.button_start_game.y + self.button_start_game.height // 2 - label.get_height() // 2
+        ))
