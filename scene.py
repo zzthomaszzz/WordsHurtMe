@@ -550,7 +550,7 @@ class SceneMain(SceneBase):
 
         self.font = pygame.font.Font(None, 22)
         self.button_inventory = pygame.Rect(BUTTON_INVENTORY_X, BUTTON_INVENTORY_Y, BUTTON_INVENTORY_WIDTH, BUTTON_INVENTORY_HEIGHT)
-        self.button_back = pygame.Rect(0, WINDOW_HEIGHT - 60, 150, 60)
+        self.button_back = pygame.Rect(20, WINDOW_HEIGHT - 54, 150, 44)
 
     def draw_area_label(self, screen, button, name):
         label = self.font.render(name, True, (0, 255, 255))

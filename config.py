@@ -169,10 +169,10 @@ player_inventory = []
 player_equipment = {"head": None, "body": None, "legs": None, "weapon": None}
 
 #Inventory button on main map
-BUTTON_INVENTORY_WIDTH = 120
-BUTTON_INVENTORY_HEIGHT = 40
-BUTTON_INVENTORY_X = WINDOW_WIDTH - 130
-BUTTON_INVENTORY_Y = WINDOW_HEIGHT - 50
+BUTTON_INVENTORY_WIDTH = 150
+BUTTON_INVENTORY_HEIGHT = 44
+BUTTON_INVENTORY_X = WINDOW_WIDTH - 170
+BUTTON_INVENTORY_Y = WINDOW_HEIGHT - 54
 
 #Items
 #---Weapons---
