@@ -32,12 +32,16 @@ class EnemyBase:
 class EnemyVillager(EnemyBase):
     def __init__(self):
         super().__init__("Villager", 30, [
-            "I hear you, sacrifice. Stand still and embrace your fate",
+            "I hear you, sacrifice. Stand still and embrace your fate.",
             "The Light, the Light! Isn't it wonderful?",
             "You are here for a reason. Surrender to the Light!",
-            "Your eyes led you to your destruction. darkness awaits",
+            "Your eyes led you to your destruction. darkness awaits.",
             "The Lighthouse guides us! He provides us with sustenance!",
             "Run away, and one of us dies instead!",
+            "Damn you! May the murklurkers tear you apart!",
+            "Even the pariahs look down on you, sighted heathen!",
+            "O', Benevolent Lighthouse. Thank you for your gift.",
+            "I don't need sight to kill you, sighted heathen!",
         ], [
             None,
             ITEM_NAVIGATION_STICK,
@@ -50,11 +54,16 @@ class EnemyVillager(EnemyBase):
 class EnemyPariah(EnemyBase):
     def __init__(self):
         super().__init__("Pariah", 30, [
-            "So the murklurkers didn't get you? I will",
-            "At least you're not a murklurker",
-            "We all have a purpose here. Even you... Even me",
+            "So the murklurkers didn't get you? I will.",
+            "At least you're not a murklurker.",
+            "We all have a purpose here. Even you... Even me.",
             "I wish they could see the Light as I can. It's beautiful...",
-            "The murklurkers fear me! You will soon know why."
+            "The murklurkers fear me! You will soon know why.",
+            "My eyes damn me to misery. Why must they remain?",
+            "To spend a lifetime in darkness? What if the Lighthouse is lying...",
+            "They condemn me for my vision. Why can't they see my worth?",
+            "I almost got eaten by a murklurker. Humiliating.",
+            "What if the Lighthouse isn't our savior? NO! I must perish the thought.",
         ], [
             ITEM_PARIAH_SPEAR,
             ITEM_STILT_BOX,
@@ -71,8 +80,13 @@ class EnemyApostle(EnemyBase):
             "O' Mighty Lighthouse, grant me strength!",
             "To reject the sins of the eyes! An act of salvation!",
             "Your death shall be quick! We offer you mercy!",
+            "None have embraced the Light this week. You shall be the one!",
             "One moment of pain, and you rest in the Light for eternity!",
-            "The Lighthouse is a kind God. You demonstrate His mercy."
+            "The Lighthouse is a kind God. You demonstrate His mercy.",
+            "Be cut into eternal darkness, or step into the light! Your choice!",
+            "I was scared of the Light once. He forgave me. I am free.",
+            "You will not suffer. One cut and it's over!",
+            "Rejecting the light? How I weep for you!",
         ], [
             None,
             ITEM_SACRIFICIAL_KNIFE,
@@ -86,7 +100,12 @@ class EnemyMurklurker(EnemyBase):
             "Glurragh",
             "Garg Glurhgh",
             "Gurlaargghg",
-            "Gurgar Glargh"
+            "Gurgar Glargh",
+            "Gaargghgh",
+            "Guurhgh Ghlargh",
+            "Gah Garh Gargh",
+            "Ghrrgh Gurrrrgh",
+            "Gurrr Grrr Grrrurh",
         ], [
             None,
             ITEM_MURKLURKER_TOOTH,
@@ -127,7 +146,12 @@ class EnemyFanatic(EnemyBase):
             "FROMDARKNESS CoMeS LiiGht!",
             "THeLi.ght WiLL GuiuiDE YOu!",
             "ReMoVe YOURUR EyE!S GaIN SaLVATION!",
-            "CoMEE!E! To T!H!E Liighht! Be FoRgiVEn!"
+            "CoMEE!E! To T!H!E Liighht! Be FoRgiVEn!",
+            "ThANK YoU, O' LiGHThoUSe FoR yOUr GifT!",
+            "YoU Wi!! Be ThE PeRFeCT SaaCRiFICEEe!",
+            "LIGHT! LIGHT! LI.I..IG..GH.T.T!",
+            "SaCrIFiCEee! EmBrAcE ThE lIGHt!",
+            "O' LiGHtHoUSe! ShInE On mE!",
         ], [
             None,
             ITEM_LANTERN_FLAIL,
@@ -142,7 +166,7 @@ class EnemyTeacher(EnemyBase):
         self.count = 0
         self.is_boss = True
         super().__init__("Teacher", 150, [
-            "Leave. Do not corrupt the children! They have been saved by the Light!",
+            "Leave. Do not corrupt the children! They have been saved by the Light.",
             "You have tarnished their sanctuary! We are not monsters!",
             "We are not insane! The Lighthouse grants us freedom from ourselves!",
             "You have to understand! Without us, who will take care of the children?",
@@ -162,11 +186,22 @@ class EnemyLighthouse(EnemyBase):
     def __init__(self):
         self.count = 0
         self.is_boss = True
-        super().__init__("Lighthouse", 120, [
+        super().__init__("Lighthouse", 450, [
             "Hello, Human. Have you come for the light? I cannot blame you for your desire.",
             "I have all the time in the world. Unlike you, death does not hinder me. Sit down and listen.",
             "The village you escaped. I am their nourishment. Their protection. Their guide. Their father. Their God.",
-            "They came to me lost, scared, and confused. I freed them of their limitations, saved them from the Murklurkers."
+            "They came to me lost, scared, and confused. I freed them of their limitations, saved them from the Murklurkers.",
+            "All I asked in return was their sight. Their eyes lead them astray. I provided them the guidance their vision failed to.",
+            "And they worship me. Their loyalty, their gratitude, the lives they offer for my favor. Isn't it beautiful?",
+            "I offer you once chance. Remove your eyes. Join them.",
+            "No? You arrogant imbecile. You will suffer for your insolence.",
+            "JOIN THEM! JOINTHEM! JOINTHEMJOINTHEMJOINTHEMJOINTHEMJOINTHEM!",
+            "REMOVEYOUREYES!REMOVEYOUREYES!REMOVEYOUREYES!REMOVEYOUREYES!",
+            "Still alive? YOU DON'T GET TO BE ALIVE! YOU DON'T GET TO FIGHT BACK! DIE! DIE! DIE!",
+            "JoInTHEM!jOinTHemJoINtHeM!!jOiNthEM!",
+            "ReMooVeYOurhEyEs!RemhOveYoReYEsRmov!yeyEs!",
+            "You WEREn't SUPPODED to get HERE! How did you win? HOW IN THE HELL DID YOU DEFEAT ME?",
+            "The villagers... With me gone, they will starve... The Murklurkers will tear their children apart... Serves them right for not killing you...",
         ], [
             ITEM_LIGHTHOUSE_HEART,
         ], [100])
