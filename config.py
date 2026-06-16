@@ -95,6 +95,8 @@ ENEMY_IMAGE_PATHS = {
     "Teacher":             "assets/teacher.png",
     "Pariah":              "assets/pariah.png",
     "Apostle":             "assets/apostle.png",
+    "Villager":            "assets/villager.png",
+    "Fanatic":             "assets/fanatic.png",
 }
 
 BUFFER_TIME = 3
