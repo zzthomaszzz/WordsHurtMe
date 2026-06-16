@@ -219,12 +219,12 @@ class SceneCombat(SceneBase):
 
         equipped = [item for item in player_equipment.values() if item is not None]
         bonus_hp = sum(i.value for i in equipped if i.stat == "health")
-        bonus_stamina = sum(i.value for i in equipped if i.stat == "stamina")
+        bonus_stamina_pct = sum(i.value for i in equipped if i.stat == "stamina")
         self.damage_reduction = sum(i.value for i in equipped if i.stat == "damage_reduction")
 
         self.player_hp = PLAYER_BASE_HP + bonus_hp
         self.player_max_hp = self.player_hp
-        self.player_stamina = PLAYER_BASE_STAMINA + bonus_stamina
+        self.player_stamina = round(PLAYER_BASE_STAMINA * (1 + bonus_stamina_pct / 100))
         self.player_max_stamina = self.player_stamina
 
         total_regen_pct = sum(i.value for i in equipped if i.stat == "stamina_regen")
@@ -734,7 +734,7 @@ class SceneInventory(SceneBase):
                 else:
                     text_color = (255, 255, 255)
 
-                if item.stat in ("damage_reduction", "stamina_regen"):
+                if item.stat in ("damage_reduction", "stamina_regen", "stamina"):
                     stat_str = f"+{item.value}% {item.stat.replace('_', ' ')}"
                 else:
                     stat_str = f"+{item.value} {item.stat.replace('_', ' ')}"
@@ -785,7 +785,7 @@ class SceneInventory(SceneBase):
             if equipped_item:
                 name_surf = self.font.render(equipped_item.name, True, (255, 255, 255))
                 screen.blit(name_surf, (s_rect.x + 8, s_rect.y + 28))
-                if equipped_item.stat in ("damage_reduction", "stamina_regen"):
+                if equipped_item.stat in ("damage_reduction", "stamina_regen", "stamina"):
                     eq_stat_str = f"+{equipped_item.value}% {equipped_item.stat.replace('_', ' ')}"
                 else:
                     eq_stat_str = f"+{equipped_item.value} {equipped_item.stat.replace('_', ' ')}"
@@ -805,11 +805,11 @@ class SceneInventory(SceneBase):
 
         equipped = [item for item in player_equipment.values() if item is not None]
         bonus_hp = sum(i.value for i in equipped if i.stat == "health")
-        bonus_sp = sum(i.value for i in equipped if i.stat == "stamina")
+        bonus_sp_pct = sum(i.value for i in equipped if i.stat == "stamina")
         bonus_dr = sum(i.value for i in equipped if i.stat == "damage_reduction")
         bonus_regen = sum(i.value for i in equipped if i.stat == "stamina_regen")
         total_hp = PLAYER_BASE_HP + bonus_hp
-        total_sp = PLAYER_BASE_STAMINA + bonus_sp
+        total_sp = round(PLAYER_BASE_STAMINA * (1 + bonus_sp_pct / 100))
         total_regen = PLAYER_BASE_STAMINA_REGEN + (bonus_regen / 100) * total_sp
 
         bar_x = STATS_X + PAD
@@ -818,7 +818,7 @@ class SceneInventory(SceneBase):
 
         stat_rows = [
             ("HP",            f"{total_hp}  (base {PLAYER_BASE_HP} + {bonus_hp})", min(1.0, total_hp / 200), (80, 200, 80)),
-            ("Stamina",       f"{total_sp}  (base {PLAYER_BASE_STAMINA} + {bonus_sp})", min(1.0, total_sp / 200), (255, 215, 0)),
+            ("Stamina",       f"{total_sp}  (base {PLAYER_BASE_STAMINA} + {bonus_sp_pct}%)", min(1.0, total_sp / 200), (255, 215, 0)),
             ("Dmg Reduction", f"{bonus_dr}%",                                           min(1.0, bonus_dr / 100), (0, 180, 255)),
             ("SP Regen",      f"{total_regen:.1f}/s  (base {PLAYER_BASE_STAMINA_REGEN} + {bonus_regen}% of SP)", min(1.0, total_regen / 20), (0, 200, 160)),
         ]
