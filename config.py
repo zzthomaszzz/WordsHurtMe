@@ -198,21 +198,21 @@ ITEM_CLOAK_OF_DEVOTEE = Item("Cloak of the Devotee", "health", 30, "body",
     "Contrary to the name, it's actually a poncho. A gaudily colored cloth poncho that somehow makes the cultists look even creepier. Only the most devoted are granted the privilege to wear it.")
 
 #---Head---
-ITEM_MURKLURKER_SKULL = Item("Murklurker Skull", "damage_reduction", 8, "head",
+ITEM_MURKLURKER_SKULL = Item("Murklurker Skull", "damage_reduction", 16, "head",
     "The pariahs sometimes wear these for bragging rights. The villagers never notice. They're blind.")
-ITEM_MURKLURKER_CAGE = Item("Murklurker Cage", "damage_reduction", 15, "head",
+ITEM_MURKLURKER_CAGE = Item("Murklurker Cage", "damage_reduction", 30, "head",
     "A cage worn by pariahs to humiliate them. It is incredibly difficult to take off, but offers some protection against the Murklurkers.")
-ITEM_LANTERN_HELMET = Item("Lantern Helmet", "damage_reduction", 13, "head",
+ITEM_LANTERN_HELMET = Item("Lantern Helmet", "damage_reduction", 26, "head",
     "Some of the villagers wear these to showcase their dedication to the Lighthouse. Some refuse to, fearing it would insult their God. Theological debates around this are common, and occasionally violent.")
-ITEM_SEAWEED_HELMET = Item("Seaweed Helmet", "damage_reduction", 10, "head",
+ITEM_SEAWEED_HELMET = Item("Seaweed Helmet", "damage_reduction", 20, "head",
     "The blinded children are taught to make these to help them cope with their recent transformation. The quality is judged by the length of the seaweed and the amount of knots. They take it seriously.")
 
 #---Legs---
-ITEM_WOODWEED_LEGGINGS = Item("Woodweed Leggings", "stamina_regen", 10, "legs",
+ITEM_WOODWEED_LEGGINGS = Item("Woodweed Leggings", "stamina_regen", 1.0, "legs",
     "The villagers wear this for comfort and the pariahs wear it for protection. It doesn't really offer either, but in this village, nothing does.")
-ITEM_TORN_PIRATE_LEGGINGS = Item("Torn Pirate Leggings", "stamina_regen", 8, "legs",
+ITEM_TORN_PIRATE_LEGGINGS = Item("Torn Pirate Leggings", "stamina_regen", 0.75, "legs",
     "Stolen from the pirates in Trash Vortex during a raid. Those pirates didn't go down without a fight. They also didn't go down without ruining their own pants. Rude.")
-ITEM_KNEELING_PADS = Item("Kneeling Pads", "stamina_regen", 12, "legs",
+ITEM_KNEELING_PADS = Item("Kneeling Pads", "stamina_regen", 1.25, "legs",
     "To be unable to pray to the Lighthouse is one of the most unforgivable sins in the village! Even the most psychotic of cultists understand the importance of proper leg-joint safety.")
 
 #---Food / Misc---
