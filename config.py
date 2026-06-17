@@ -198,13 +198,13 @@ ITEM_CLOAK_OF_DEVOTEE = Item("Cloak of the Devotee", "health", 30, "body",
     "Contrary to the name, it's actually a poncho. A gaudily colored cloth poncho that somehow makes the cultists look even creepier. Only the most devoted are granted the privilege to wear it.")
 
 #---Head---
-ITEM_MURKLURKER_SKULL = Item("Murklurker Skull", "damage_reduction", 16, "head",
+ITEM_MURKLURKER_SKULL = Item("Murklurker Skull", "damage_reduction", 8, "head",
     "The pariahs sometimes wear these for bragging rights. The villagers never notice. They're blind.")
-ITEM_MURKLURKER_CAGE = Item("Murklurker Cage", "damage_reduction", 30, "head",
+ITEM_MURKLURKER_CAGE = Item("Murklurker Cage", "damage_reduction", 15, "head",
     "A cage worn by pariahs to humiliate them. It is incredibly difficult to take off, but offers some protection against the Murklurkers.")
-ITEM_LANTERN_HELMET = Item("Lantern Helmet", "damage_reduction", 26, "head",
+ITEM_LANTERN_HELMET = Item("Lantern Helmet", "damage_reduction", 13, "head",
     "Some of the villagers wear these to showcase their dedication to the Lighthouse. Some refuse to, fearing it would insult their God. Theological debates around this are common, and occasionally violent.")
-ITEM_SEAWEED_HELMET = Item("Seaweed Helmet", "damage_reduction", 20, "head",
+ITEM_SEAWEED_HELMET = Item("Seaweed Helmet", "damage_reduction", 10, "head",
     "The blinded children are taught to make these to help them cope with their recent transformation. The quality is judged by the length of the seaweed and the amount of knots. They take it seriously.")
 
 #---Legs---
