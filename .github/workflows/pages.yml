@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy to GitHub Pages and itch.io
 
 on:
   push:
@@ -36,3 +36,11 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Install itch.io Butler
+        uses: remarkablegames/setup-butler@v2
+
+      - name: Upload Web Build to itch.io
+        run: butler push build/web jacobnotaduck/words-hurt-me:html5
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_CREDENTIALS }}
