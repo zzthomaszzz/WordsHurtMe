@@ -194,7 +194,7 @@ class EnemyLighthouse(EnemyBase):
             "JoInTHEM!jOinTHemJoINtHeM!!jOiNthEM!",
             "ReMooVeYOurhEyEs!RemhOveYoReYEsRmov!yeyEs!",
             "You WEREn't SUPPODED to get HERE! How did you win? HOW IN THE HELL DID YOU DEFEAT ME?",
-            "The villagers... With me gone, they will starve... The Murklurkers will tear their children apart... Serves them right for not killing you...",
+            "The villagers... With me gone, they will starve... The Murklurkers will tear their children apart...",
             "Serves them right for not killing you...",
         ], [
             ITEM_LIGHTHOUSE_HEART,
