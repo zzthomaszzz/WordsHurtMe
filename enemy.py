@@ -179,7 +179,7 @@ class EnemyLighthouse(EnemyBase):
     def __init__(self):
         self.count = 0
         self.is_boss = True
-        super().__init__("Lighthouse", 450, [
+        super().__init__("Lighthouse", 480, [
             "Hello, Human. Have you come for the light? I cannot blame you for your desire.",
             "I have all the time in the world. Unlike you, death does not hinder me. Sit down and listen.",
             "The village you escaped. I am their nourishment. Their protection. Their guide. Their father. Their God.",
@@ -195,6 +195,7 @@ class EnemyLighthouse(EnemyBase):
             "ReMooVeYOurhEyEs!RemhOveYoReYEsRmov!yeyEs!",
             "You WEREn't SUPPODED to get HERE! How did you win? HOW IN THE HELL DID YOU DEFEAT ME?",
             "The villagers... With me gone, they will starve... The Murklurkers will tear their children apart... Serves them right for not killing you...",
+            "Serves them right for not killing you...",
         ], [
             ITEM_LIGHTHOUSE_HEART,
         ], [100])
