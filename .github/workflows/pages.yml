@@ -41,6 +41,6 @@ jobs:
         uses: remarkablegames/setup-butler@v2
 
       - name: Upload Web Build to itch.io
-        run: butler push build/web ${{ JacobNotaDuck }}/${{ words-hurt-me }}:html5
+        run: butler push build/web jacobnotaduck/words-hurt-me:html5
         env:
           BUTLER_API_KEY: ${{ secrets.BUTLER_CREDENTIALS }}
